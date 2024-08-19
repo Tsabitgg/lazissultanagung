@@ -1,0 +1,12 @@
+package com.lazis.lazissultanagung.service;
+
+import com.lazis.lazissultanagung.dto.request.EditProfileDonaturRequest;
+import com.lazis.lazissultanagung.exception.BadRequestException;
+import com.lazis.lazissultanagung.model.Donatur;
+
+public interface DonaturService {
+
+    Donatur getCurrentDonatur() throws com.lazis.lazissultanagung.exception.BadRequestException;
+
+    Donatur editProfileDonatur(EditProfileDonaturRequest editProfileRequest) throws BadRequestException;
+}
