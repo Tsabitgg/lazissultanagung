@@ -10,7 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.server.ResponseStatusException;
 
 public interface AuthService {
-    JwtResponse authenticateUser(SignInRequest signInRequest, HttpServletResponse response) throws ResponseStatusException;
+
+    JwtResponse authenticateUser(SignInRequest signinRequest, HttpServletResponse response, String userType) throws BadRequestException;
 
     Admin registerAdmin(SignUpRequest signUpRequest) throws BadRequestException;
 

@@ -24,27 +24,35 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
+        // Mencoba mencari user berdasarkan nomor telepon
         Optional<Donatur> donaturOptional = donaturRepository.findByPhoneNumber(input);
         Optional<Admin> adminOptional = adminRepository.findByPhoneNumber(input);
 
-        Donatur donatur = donaturOptional.orElse(null);
-        Admin admin = adminOptional.orElse(null);
-
-        if (donatur == null && admin == null) {
-            // Jika tidak ditemukan, coba cari dengan email
-            donaturOptional = donaturRepository.findByEmail(input);
-            adminOptional = adminRepository.findByEmail(input);
-
-            donatur = donaturOptional.orElse(null);
-            admin = adminOptional.orElse(null);
-        }
-
-        if (donatur != null) {
+        if (donaturOptional.isPresent()) {
+            Donatur donatur = donaturOptional.get();
             return UserDetailsImpl.build(donatur);
-        } else if (admin != null) {
-            return UserDetailsImpl.build(admin);
-        } else {
-            throw new UsernameNotFoundException("User not found with input: " + input);
         }
+
+        if (adminOptional.isPresent()) {
+            Admin admin = adminOptional.get();
+            return UserDetailsImpl.build(admin);
+        }
+
+        // Jika tidak ditemukan, coba cari dengan email
+        donaturOptional = donaturRepository.findByEmail(input);
+        adminOptional = adminRepository.findByEmail(input);
+
+        if (donaturOptional.isPresent()) {
+            Donatur donatur = donaturOptional.get();
+            return UserDetailsImpl.build(donatur);
+        }
+
+        if (adminOptional.isPresent()) {
+            Admin admin = adminOptional.get();
+            return UserDetailsImpl.build(admin);
+        }
+
+        // Jika user tidak ditemukan
+        throw new UsernameNotFoundException("User not found with input: " + input);
     }
 }

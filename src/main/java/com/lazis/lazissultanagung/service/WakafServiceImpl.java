@@ -3,9 +3,9 @@ package com.lazis.lazissultanagung.service;
 import com.lazis.lazissultanagung.enumeration.ERole;
 import com.lazis.lazissultanagung.exception.BadRequestException;
 import com.lazis.lazissultanagung.model.Admin;
-import com.lazis.lazissultanagung.model.Zakat;
+import com.lazis.lazissultanagung.model.Wakaf;
 import com.lazis.lazissultanagung.repository.AdminRepository;
-import com.lazis.lazissultanagung.repository.ZakatRepository;
+import com.lazis.lazissultanagung.repository.WakafRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,21 +14,21 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ZakatServiceImpl implements ZakatService {
-
-    @Autowired
-    private ZakatRepository zakatRepository;
+public class WakafServiceImpl implements WakafService {
 
     @Autowired
     private AdminRepository adminRepository;
 
+    @Autowired
+    private WakafRepository wakafRepository;
+
     @Override
-    public List<Zakat> getAllZakat(){
-        return zakatRepository.findAll();
+    public List<Wakaf> getAllWakaf(){
+        return wakafRepository.findAll();
     }
 
     @Override
-    public Zakat crateZakat(Zakat zakat) throws BadRequestException {
+    public Wakaf createWakaf(Wakaf wakaf){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -39,23 +39,22 @@ public class ZakatServiceImpl implements ZakatService {
                 throw new BadRequestException("Only ADMIN users can create campaigns");
             }
 
-            return zakatRepository.save(zakat);
+            return wakafRepository.save(wakaf);
         }
         throw new BadRequestException("Admin not found");
     }
 
     @Override
-    public Zakat updateZakat(Long id, Zakat zakat){
-        Zakat updateZakat = zakatRepository.findById(id)
-                .orElseThrow(()-> new BadRequestException("Zakat Not Found"));
+    public Wakaf updateWakaf(Long id, Wakaf wakaf){
+        Wakaf updateWakaf = wakafRepository.findById(id)
+                .orElseThrow(()-> new BadRequestException("Wakaf Not Found"));
 
-        updateZakat.setZakatCategory(zakat.getZakatCategory());
-        updateZakat.setAmount(zakat.getAmount());
-        updateZakat.setDistribution(zakat.getDistribution());
-        updateZakat.setCoa(zakat.getCoa());
-        updateZakat.setEmergency(zakat.isEmergency());
+        updateWakaf.setWakafCategory(wakaf.getWakafCategory());
+        updateWakaf.setAmount(wakaf.getAmount());
+        updateWakaf.setDistribution(wakaf.getDistribution());
+        updateWakaf.setCoa(wakaf.getCoa());
+        updateWakaf.setEmergency(wakaf.isEmergency());
 
-        return zakatRepository.save(updateZakat);
+        return wakafRepository.save(updateWakaf);
     }
-
 }

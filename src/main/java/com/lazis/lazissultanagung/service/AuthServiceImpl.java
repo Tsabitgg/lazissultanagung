@@ -18,11 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -43,28 +40,33 @@ public class AuthServiceImpl implements AuthService {
     private JwtUtils jwtUtils;
 
     @Override
-    public JwtResponse authenticateUser(SignInRequest signInRequest, HttpServletResponse response) throws ResponseStatusException {
-        // Autentikasi pengguna menggunakan username atau nomor telepon
+    public JwtResponse authenticateUser(SignInRequest signinRequest, HttpServletResponse response, String userType) throws BadRequestException {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signInRequest.getEmailOrPhoneNumber(), signInRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(signinRequest.getEmailOrPhoneNumber(), signinRequest.getPassword()));
 
-        // Set autentikasi ke dalam konteks keamanan
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Mendapatkan informasi pengguna yang terotentikasi
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        // Generate token JWT
+        if (userType.equals("ADMIN")) {
+            boolean isAdmin = userDetails.getAuthorities().stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN") ||
+                            grantedAuthority.getAuthority().equals("SUB_ADMIN"));
+
+            if (!isAdmin) {
+                throw new BadRequestException("Access Denied: You are not authorized to sign in as Admin");
+            }
+        } else if (userType.equals("DONATUR")) {
+            boolean isDonatur = userDetails.getAuthorities().isEmpty();
+
+            if (!isDonatur) {
+                throw new BadRequestException("Access Denied: You are not authorized to sign in as Donatur");
+            }
+        }
+
         String jwt = jwtUtils.generateJwtToken(authentication);
-
-        // Ambil daftar peran pengguna
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(authority -> authority.getAuthority())
-                .collect(Collectors.toList());
-
-        // Buat dan kembalikan respons JWT
         return new JwtResponse(jwt);
     }
+
 
     @Override
     public Admin registerAdmin(SignUpRequest signUpRequest) throws BadRequestException {

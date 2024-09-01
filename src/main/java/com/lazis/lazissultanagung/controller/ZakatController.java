@@ -30,4 +30,10 @@ public class ZakatController {
         return ResponseEntity.ok(createdZakat);
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Zakat> updateZakat(@PathVariable Long id, @RequestBody Zakat zakat) {
+        Zakat updateZakat = zakatService.updateZakat(id, zakat);
+        return ResponseEntity.ok(updateZakat);
+    }
+
 }

@@ -22,11 +22,11 @@ public class DonaturServiceImpl implements DonaturService {
     @Autowired
     private DonaturRepository donaturRepository;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
     @Autowired
     private PasswordEncoder encoder;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
 
     @Override
@@ -65,24 +65,15 @@ public class DonaturServiceImpl implements DonaturService {
             }
 
             if (editProfileRequest.getImage() != null && !editProfileRequest.getImage().isEmpty()) {
-                try {
-                    String fileName = userDetails.getUsername() + "_" + System.currentTimeMillis() + "_" + editProfileRequest.getImage().getOriginalFilename();
-                    Path filePath = Paths.get(uploadDir, fileName);
-
-                    // Buat direktori jika belum ada
-                    Files.createDirectories(filePath.getParent());
-
-                    // Simpan file gambar ke sistem file lokal
-                    Files.write(filePath, editProfileRequest.getImage().getBytes());
-
-                    // Simpan path file ke dalam database
-                    existingDonatur.setImage(filePath.toString());
-                } catch (IOException e) {
-                    throw new BadRequestException("Error uploading image" + e);
+                String imageUrl = cloudinaryService.upload(editProfileRequest.getImage());
+                if (imageUrl != null) {
+                    existingDonatur.setImage(imageUrl);
                 }
             }
+
             return donaturRepository.save(existingDonatur);
         }
         throw new BadRequestException("User not found");
     }
+
 }

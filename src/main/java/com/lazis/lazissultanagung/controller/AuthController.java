@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @CrossOrigin(origins= {"*"}, maxAge = 4800, allowCredentials = "false" )
 @RestController
 @RequestMapping("/api/auth")
@@ -20,11 +22,18 @@ public class AuthController {
     @Autowired
     AuthService authService;
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody SignInRequest signInRequest, HttpServletResponse response) {
-        JwtResponse jwtResponse = authService.authenticateUser(signInRequest, response);
-        return ResponseEntity.ok(jwtResponse);
+    @PostMapping("/signin/donatur")
+    public ResponseEntity<?> authenticateDonatur(@Valid @RequestBody SignInRequest signInRequest, HttpServletResponse response) {
+        return ResponseEntity.ok(authService.authenticateUser(signInRequest, response, "DONATUR"));
     }
+
+
+
+    @PostMapping("/signin/admin")
+    public ResponseEntity<?> authenticateAdmin(@Valid @RequestBody SignInRequest signInRequest, HttpServletResponse response) {
+        return ResponseEntity.ok(authService.authenticateUser(signInRequest, response, "ADMIN"));
+    }
+
 
     @PostMapping("/signup/admin")
     public ResponseEntity<?> registerAdmin(@RequestBody SignUpRequest signUpRequest) {

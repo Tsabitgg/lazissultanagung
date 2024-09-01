@@ -10,4 +10,6 @@ public interface ZakatService {
     List<Zakat> getAllZakat();
 
     Zakat crateZakat(Zakat zakat) throws BadRequestException;
+
+    Zakat updateZakat(Long id, Zakat zakat);
 }

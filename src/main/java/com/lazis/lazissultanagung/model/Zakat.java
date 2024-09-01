@@ -22,4 +22,7 @@ public class Zakat {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "coa_id", referencedColumnName = "id")
     private Coa coa;
+
+    @Column(columnDefinition = "BOOLEAN")
+    private boolean emergency;
 }

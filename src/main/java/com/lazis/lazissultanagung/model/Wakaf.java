@@ -17,4 +17,11 @@ public class Wakaf {
     private String wakafCategory;
     private double amount;
     private double distribution;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "coa_id", referencedColumnName = "id")
+    private Coa coa;
+
+    @Column(columnDefinition = "BOOLEAN")
+    private boolean emergency;
 }
