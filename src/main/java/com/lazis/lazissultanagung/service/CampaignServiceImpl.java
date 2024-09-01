@@ -94,6 +94,7 @@ public class CampaignServiceImpl implements CampaignService {
             CampaignResponse campaignResponse = modelMapper.map(savedCampaign, CampaignResponse.class);
 
             // Additional manual mappings, if necessary
+            campaignResponse.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
             campaignResponse.setCreator(existingAdmin.getUsername());
 
             return campaignResponse;
@@ -107,6 +108,7 @@ public class CampaignServiceImpl implements CampaignService {
         return campaigns.stream()
                 .map(campaign -> {
                     CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+                    response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
                     response.setCreator(campaign.getAdmin().getUsername()); // Set creator's username
                     // Tambahan mapping yang diperlukan
                     return response;
@@ -171,6 +173,7 @@ public class CampaignServiceImpl implements CampaignService {
         // Menerapkan mapping dari Campaign ke CampaignResponse
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
             response.setCreator(campaign.getAdmin().getUsername());
             return response;
         });
