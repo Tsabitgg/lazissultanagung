@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/campaign")
@@ -24,8 +25,8 @@ public class CampaignController {
     private CampaignService campaignService;
 
     @GetMapping
-    public ResponseEntity<List<Campaign>> getAllCampaign(){
-        List<Campaign> campaigns = campaignService.getAllCampaign();
+    public ResponseEntity<List<CampaignResponse>> getAllCampaign(){
+        List<CampaignResponse> campaigns = campaignService.getAllCampaign();
         return ResponseEntity.ok().body(campaigns);
     }
 
@@ -41,8 +42,23 @@ public class CampaignController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CampaignResponse> getCampaignById(@PathVariable Long id){
+        Optional<CampaignResponse> campaignOptional = campaignService.getCampaignById(id);
+        if (campaignOptional.isPresent()){
+            return new ResponseEntity<>(campaignOptional.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseMessage deleteCampaign(@PathVariable Long id){
+        return campaignService.deleteCampaign(id);
+    }
+
     @GetMapping("/get-active-and-approved-campaign")
-    public Page<Campaign> getCampaignByActiveAndApproved(@RequestParam(name = "page", defaultValue = "0") int page){
+    public Page<CampaignResponse> getCampaignByActiveAndApproved(@RequestParam(name = "page", defaultValue = "0") int page){
         int pageSize = 12;
         PageRequest pageRequest = PageRequest.of(page, pageSize);
         return campaignService.getCampaignByActiveAndApproved(pageRequest);

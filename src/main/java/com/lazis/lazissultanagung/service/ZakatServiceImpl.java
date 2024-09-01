@@ -1,5 +1,6 @@
 package com.lazis.lazissultanagung.service;
 
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.enumeration.ERole;
 import com.lazis.lazissultanagung.exception.BadRequestException;
 import com.lazis.lazissultanagung.model.Admin;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ZakatServiceImpl implements ZakatService {
@@ -33,21 +35,21 @@ public class ZakatServiceImpl implements ZakatService {
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("Admin not found"));
+                    .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
             if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Only ADMIN users can create campaigns");
+                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat zakat");
             }
 
             return zakatRepository.save(zakat);
         }
-        throw new BadRequestException("Admin not found");
+        throw new BadRequestException("Admin tidak ditemukan");
     }
 
     @Override
     public Zakat updateZakat(Long id, Zakat zakat){
         Zakat updateZakat = zakatRepository.findById(id)
-                .orElseThrow(()-> new BadRequestException("Zakat Not Found"));
+                .orElseThrow(()-> new BadRequestException("Zakat tidak ditemukan"));
 
         updateZakat.setZakatCategory(zakat.getZakatCategory());
         updateZakat.setAmount(zakat.getAmount());
@@ -58,4 +60,17 @@ public class ZakatServiceImpl implements ZakatService {
         return zakatRepository.save(updateZakat);
     }
 
+    @Override
+    public Optional<Zakat> getZakatById(Long id){
+        return Optional.ofNullable(zakatRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Zakat tidak ditemukan ")));
+    }
+
+    @Override
+    public ResponseMessage deleteZakat(Long id){
+        Zakat deleteZakat = zakatRepository.findById(id)
+                .orElseThrow(()-> new BadRequestException("Zakat tidak ditemukan"));
+        zakatRepository.delete(deleteZakat);
+        return new ResponseMessage(true, "Zakat Berhasil Dihapus");
+    }
 }

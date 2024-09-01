@@ -2,6 +2,7 @@ package com.lazis.lazissultanagung.service;
 
 import com.lazis.lazissultanagung.dto.request.CampaignRequest;
 import com.lazis.lazissultanagung.dto.response.CampaignResponse;
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.enumeration.ERole;
 import com.lazis.lazissultanagung.exception.BadRequestException;
 import com.lazis.lazissultanagung.model.Admin;
@@ -20,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CampaignServiceImpl implements CampaignService {
@@ -43,17 +46,17 @@ public class CampaignServiceImpl implements CampaignService {
     public CampaignResponse createCampaign(CampaignRequest campaignRequest) {
         // Find category
         CampaignCategory campaignCategory = campaignCategoryRepository.findById(campaignRequest.getCategoryId())
-                .orElseThrow(() -> new BadRequestException("Category not found"));
+                .orElseThrow(() -> new BadRequestException("Kategori Tidak ditemukan"));
 
         // Get current authenticated admin
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("Admin not found"));
+                    .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
             if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Only ADMIN users can create campaigns");
+                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat campaign");
             }
 
             // Handle image upload to Cloudinary
@@ -92,16 +95,42 @@ public class CampaignServiceImpl implements CampaignService {
 
             // Additional manual mappings, if necessary
             campaignResponse.setCreator(existingAdmin.getUsername());
-            campaignResponse.setCategoryName(savedCampaign.getCampaignCategory().getCampaignCategory());
 
             return campaignResponse;
         }
-        throw new BadRequestException("Admin not found");
+        throw new BadRequestException("Admin tidak ditemukan");
     }
 
     @Override
-    public List<Campaign> getAllCampaign() {
-        return campaignRepository.findAll();
+    public List<CampaignResponse> getAllCampaign() {
+        List<Campaign> campaigns = campaignRepository.findAll();
+        return campaigns.stream()
+                .map(campaign -> {
+                    CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+                    response.setCreator(campaign.getAdmin().getUsername()); // Set creator's username
+                    // Tambahan mapping yang diperlukan
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<CampaignResponse> getCampaignById(Long id) {
+        return campaignRepository.findById(id)
+                .map(campaign -> {
+                    CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+                    response.setCreator(campaign.getAdmin().getUsername());
+                    return response;
+                });
+    }
+
+
+    @Override
+    public ResponseMessage deleteCampaign(Long id){
+        Campaign deleteCampaign = campaignRepository.findById(id)
+                .orElseThrow(()-> new BadRequestException("Campaign tidak ditemukan"));
+        campaignRepository.delete(deleteCampaign);
+        return new ResponseMessage(true, "Campaign Berhasil Dihapus");
     }
 
     @Override
@@ -111,10 +140,10 @@ public class CampaignServiceImpl implements CampaignService {
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("Admin not found"));
+                    .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
             if (!existingAdmin.getRole().equals(ERole.ADMIN)) {
-                throw new BadRequestException("Only ADMIN users can approve campaigns");
+                throw new BadRequestException("Hanya Admin yang bisa menyetujui campaign");
             }
 
             Campaign campaign = campaignRepository.findById(id)
@@ -124,18 +153,27 @@ public class CampaignServiceImpl implements CampaignService {
 
             return campaignRepository.save(campaign);
         }
-        throw new BadRequestException("Admin not found");
+        throw new BadRequestException("Admin tidak ditemukan");
     }
 
     @Override
-    public Page<Campaign> getCampaignByActiveAndApproved(Pageable pageable) {
+    public Page<CampaignResponse> getCampaignByActiveAndApproved(Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findCampaignByActiveAndApproved(pageable);
-        for (Campaign campaign : campaigns.getContent()) {
+
+        // Update setiap Campaign jika `currentAmount` >= `targetAmount`
+        campaigns.forEach(campaign -> {
             if (campaign.getCurrentAmount() >= campaign.getTargetAmount()) {
                 campaign.setActive(false);
                 campaignRepository.save(campaign);
             }
-        }
-        return campaigns;
+        });
+
+        // Menerapkan mapping dari Campaign ke CampaignResponse
+        return campaigns.map(campaign -> {
+            CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setCreator(campaign.getAdmin().getUsername());
+            return response;
+        });
     }
+
 }

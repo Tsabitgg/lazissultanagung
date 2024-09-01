@@ -1,5 +1,6 @@
 package com.lazis.lazissultanagung.service;
 
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.enumeration.ERole;
 import com.lazis.lazissultanagung.exception.BadRequestException;
 import com.lazis.lazissultanagung.model.Admin;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DSKLServiceImpl implements DSKLService{
@@ -33,22 +35,22 @@ public class DSKLServiceImpl implements DSKLService{
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("Admin not found"));
+                    .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
             if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Only ADMIN users can create campaigns");
+                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat DSKL");
             }
 
             return dsklRepository.save(dskl);
         }
-        throw new BadRequestException("Admin not found");
+        throw new BadRequestException("Admin tidak ditemukan");
     }
 
 
     @Override
     public DSKL updateDSKL(Long id, DSKL dskl){
         DSKL updateDSKL = dsklRepository.findById(id)
-                .orElseThrow(()-> new BadRequestException("DSKL Not Found"));
+                .orElseThrow(()-> new BadRequestException("DSKL tidak ditemukan"));
 
         updateDSKL.setDsklCategory(dskl.getDsklCategory());
         updateDSKL.setAmount(dskl.getAmount());
@@ -60,10 +62,16 @@ public class DSKLServiceImpl implements DSKLService{
     }
 
     @Override
-    public void deleteDSKL(Long id){
-        DSKL deleteDSKL = dsklRepository.findById(id)
-                .orElseThrow(()-> new BadRequestException("DSKL Not Found"));
+    public Optional<DSKL> getDSKLById(Long id){
+        return Optional.ofNullable(dsklRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("DSKL tidak ditemukan ")));
+    }
 
+    @Override
+    public ResponseMessage deleteDSKL(Long id){
+        DSKL deleteDSKL = dsklRepository.findById(id)
+                .orElseThrow(()-> new BadRequestException("DSKL tidak ditemukan"));
         dsklRepository.delete(deleteDSKL);
+        return new ResponseMessage(true, "DSKL Berhasil Dihapus");
     }
 }

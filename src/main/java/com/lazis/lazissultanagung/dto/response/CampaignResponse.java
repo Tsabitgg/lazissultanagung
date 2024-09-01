@@ -7,10 +7,10 @@ import java.time.LocalDate;
 
 @Data
 public class CampaignResponse{
-    private Long id;
+    private Long campaignId;
     private String campaignCode;
     private String campaignName;
-    private String categoryName;
+    private String campaignCategory;
     private String creator;
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd")

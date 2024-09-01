@@ -1,5 +1,6 @@
 package com.lazis.lazissultanagung.service;
 
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.enumeration.ERole;
 import com.lazis.lazissultanagung.exception.BadRequestException;
 import com.lazis.lazissultanagung.model.Admin;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InfakServiceImpl implements InfakService{
@@ -33,21 +35,21 @@ public class InfakServiceImpl implements InfakService{
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("Admin not found"));
+                    .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
             if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Only ADMIN users can create campaigns");
+                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat Infak");
             }
 
             return infakRepository.save(infak);
         }
-        throw new BadRequestException("Admin not found");
+        throw new BadRequestException("Admin tidak ditemukan");
     }
 
     @Override
     public Infak updateInfak(Long id, Infak infak){
         Infak updateInfak = infakRepository.findById(id)
-                .orElseThrow(()-> new BadRequestException("Infak Not Found"));
+                .orElseThrow(()-> new BadRequestException("Infak tidak ditemukan"));
 
         updateInfak.setInfakCategory(infak.getInfakCategory());
         updateInfak.setAmount(infak.getAmount());
@@ -56,5 +58,19 @@ public class InfakServiceImpl implements InfakService{
         updateInfak.setEmergency(infak.isEmergency());
 
         return infakRepository.save(updateInfak);
+    }
+
+    @Override
+    public Optional<Infak> getInfakById(Long id){
+        return Optional.ofNullable(infakRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Infak tidak ditemukan ")));
+    }
+
+    @Override
+    public ResponseMessage deleteInfak(Long id){
+        Infak deleteInfak = infakRepository.findById(id)
+                .orElseThrow(()-> new BadRequestException("Infak tidak ditemukan"));
+        infakRepository.delete(deleteInfak);
+        return new ResponseMessage(true, "Infak Berhasil Dihapus");
     }
 }

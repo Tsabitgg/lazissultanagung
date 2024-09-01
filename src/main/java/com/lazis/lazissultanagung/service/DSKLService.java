@@ -1,8 +1,10 @@
 package com.lazis.lazissultanagung.service;
 
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.model.DSKL;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DSKLService {
     List<DSKL> getAllDSKL();
@@ -11,5 +13,7 @@ public interface DSKLService {
 
     DSKL updateDSKL(Long id, DSKL dskl);
 
-    void deleteDSKL(Long id);
+    Optional<DSKL> getDSKLById(Long id);
+
+    ResponseMessage deleteDSKL(Long id);
 }

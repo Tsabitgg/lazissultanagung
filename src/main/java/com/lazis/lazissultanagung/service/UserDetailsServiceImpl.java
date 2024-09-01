@@ -53,6 +53,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
 
         // Jika user tidak ditemukan
-        throw new UsernameNotFoundException("User not found with input: " + input);
+        throw new UsernameNotFoundException("User tidak ditemukan dengan inputan: " + input);
     }
 }

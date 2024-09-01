@@ -2,6 +2,7 @@ package com.lazis.lazissultanagung.service;
 
 import com.lazis.lazissultanagung.dto.request.CampaignRequest;
 import com.lazis.lazissultanagung.dto.response.CampaignResponse;
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.exception.BadRequestException;
 import com.lazis.lazissultanagung.model.Campaign;
 import jakarta.transaction.Transactional;
@@ -9,14 +10,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CampaignService {
     CampaignResponse createCampaign(CampaignRequest campaignRequest);
 
-    List<Campaign> getAllCampaign();
+    List<CampaignResponse> getAllCampaign();
+
+
+    Optional<CampaignResponse> getCampaignById(Long id);
+
+    ResponseMessage deleteCampaign(Long id);
 
     @Transactional
     Campaign approveCampaign(Long id) throws BadRequestException;
 
-    Page<Campaign> getCampaignByActiveAndApproved(Pageable pageable);
+    Page<CampaignResponse> getCampaignByActiveAndApproved(Pageable pageable);
 }

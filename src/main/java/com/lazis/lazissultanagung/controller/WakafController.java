@@ -1,14 +1,15 @@
 package com.lazis.lazissultanagung.controller;
 
-import com.lazis.lazissultanagung.model.Infak;
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.model.Wakaf;
-import com.lazis.lazissultanagung.model.Zakat;
 import com.lazis.lazissultanagung.service.WakafService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins= {"*"}, maxAge = 4800, allowCredentials = "false" )
 @RestController
@@ -36,4 +37,18 @@ public class WakafController {
         return ResponseEntity.ok(updateWakaf);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Wakaf> getWakafById(@PathVariable Long id){
+        Optional<Wakaf> wakafOptional = wakafService.getWakafById(id);
+        if (wakafOptional.isPresent()){
+            return new ResponseEntity<>(wakafOptional.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseMessage deleteWakaf(@PathVariable Long id){
+        return wakafService.deleteWakaf(id);
+    }
 }

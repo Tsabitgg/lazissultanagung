@@ -53,13 +53,13 @@ public class AuthServiceImpl implements AuthService {
                             grantedAuthority.getAuthority().equals("SUB_ADMIN"));
 
             if (!isAdmin) {
-                throw new BadRequestException("Access Denied: You are not authorized to sign in as Admin");
+                throw new BadRequestException("Akses ditolak!!!, anda tidak signin sebagai admin");
             }
         } else if (userType.equals("DONATUR")) {
             boolean isDonatur = userDetails.getAuthorities().isEmpty();
 
             if (!isDonatur) {
-                throw new BadRequestException("Access Denied: You are not authorized to sign in as Donatur");
+                throw new BadRequestException("Akses ditolak!!!, anda tidak signin sebagai donatur");
             }
         }
 
@@ -71,11 +71,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Admin registerAdmin(SignUpRequest signUpRequest) throws BadRequestException {
         if (adminRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw new BadRequestException("Error: Email is already taken!");
+            throw new BadRequestException("Error: Email sudah digunakan!");
         }
 
         if (adminRepository.existsByPhoneNumber(signUpRequest.getPhoneNumber())) {
-            throw new BadRequestException("Error: Phone Number is already in use!");
+            throw new BadRequestException("Error: Nomor Handphone sudah digunakan!");
         }
 
         Admin admin = new Admin(
@@ -116,11 +116,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Donatur registerDonatur(SignUpRequest signUpRequest) throws BadRequestException {
         if (donaturRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw new BadRequestException("Error: Email is already taken!");
+            throw new BadRequestException("Error: Email Sudah digunakan!");
         }
 
         if (donaturRepository.existsByPhoneNumber(signUpRequest.getPhoneNumber())) {
-            throw new BadRequestException("Error: Phone Number is already in use!");
+            throw new BadRequestException("Error: Nomor Handphone sudah digunakan!");
         }
 
         // Set role default sebagai DONATUR

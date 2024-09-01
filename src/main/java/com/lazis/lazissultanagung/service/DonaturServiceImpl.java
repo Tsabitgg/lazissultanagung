@@ -35,9 +35,9 @@ public class DonaturServiceImpl implements DonaturService {
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             return donaturRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("User not found"));
+                    .orElseThrow(() -> new BadRequestException("Donatur tidak ditemukan"));
         }
-        throw new BadRequestException("User not found");
+        throw new BadRequestException("Donatur tidak ditemukan");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class DonaturServiceImpl implements DonaturService {
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             Donatur existingDonatur = donaturRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("User not found"));
+                    .orElseThrow(() -> new BadRequestException("Donatur"));
 
             if (editProfileRequest.getUsername() != null) {
                 existingDonatur.setUsername(editProfileRequest.getUsername());
@@ -73,7 +73,7 @@ public class DonaturServiceImpl implements DonaturService {
 
             return donaturRepository.save(existingDonatur);
         }
-        throw new BadRequestException("User not found");
+        throw new BadRequestException("Donatur tidak ditemukan");
     }
 
 }

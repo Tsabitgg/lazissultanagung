@@ -1,5 +1,6 @@
 package com.lazis.lazissultanagung.service;
 
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.enumeration.ERole;
 import com.lazis.lazissultanagung.exception.BadRequestException;
 import com.lazis.lazissultanagung.model.Admin;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class WakafServiceImpl implements WakafService {
@@ -33,21 +35,21 @@ public class WakafServiceImpl implements WakafService {
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("Admin not found"));
+                    .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
             if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Only ADMIN users can create campaigns");
+                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat wakaf");
             }
 
             return wakafRepository.save(wakaf);
         }
-        throw new BadRequestException("Admin not found");
+        throw new BadRequestException("Admin tidak ditemukan");
     }
 
     @Override
     public Wakaf updateWakaf(Long id, Wakaf wakaf){
         Wakaf updateWakaf = wakafRepository.findById(id)
-                .orElseThrow(()-> new BadRequestException("Wakaf Not Found"));
+                .orElseThrow(()-> new BadRequestException("Wakaf tidak ditemukan"));
 
         updateWakaf.setWakafCategory(wakaf.getWakafCategory());
         updateWakaf.setAmount(wakaf.getAmount());
@@ -56,5 +58,19 @@ public class WakafServiceImpl implements WakafService {
         updateWakaf.setEmergency(wakaf.isEmergency());
 
         return wakafRepository.save(updateWakaf);
+    }
+
+    @Override
+    public Optional<Wakaf> getWakafById(Long id){
+        return Optional.ofNullable(wakafRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Wakaf tidak ditemukan ")));
+    }
+
+    @Override
+    public ResponseMessage deleteWakaf(Long id){
+        Wakaf deleteWakaf = wakafRepository.findById(id)
+                .orElseThrow(()-> new BadRequestException("Wakaf tidak ditemukan"));
+        wakafRepository.delete(deleteWakaf);
+        return new ResponseMessage(true, "Wakaf Berhasil Dihapus");
     }
 }

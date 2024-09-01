@@ -20,8 +20,8 @@ public class AdminServiceImpl implements AdminService {
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             return adminRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("User not found"));
+                    .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
         }
-        throw new BadRequestException("User not found");
+        throw new BadRequestException("Admin tidak ditemukan");
     }
 }
