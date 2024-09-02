@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins= {"*"}, maxAge = 4800, allowCredentials = "false" )
 @RestController
 @RequestMapping("api/campaign")
 public class CampaignController {
