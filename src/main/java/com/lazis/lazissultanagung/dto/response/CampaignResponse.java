@@ -11,6 +11,7 @@ public class CampaignResponse{
     private String campaignCode;
     private String campaignName;
     private String campaignCategory;
+    private String campaignImage;
     private String creator;
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd")
