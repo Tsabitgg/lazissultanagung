@@ -23,7 +23,11 @@ public interface CampaignService {
     ResponseMessage deleteCampaign(Long id);
 
     @Transactional
-    Campaign approveCampaign(Long id) throws BadRequestException;
+    ResponseMessage approveCampaign(Long id) throws BadRequestException;
 
     Page<CampaignResponse> getCampaignByActiveAndApproved(Pageable pageable);
+
+    Page<CampaignResponse> getCampaignsByCategoryName(String categoryName, Pageable pageable);
+
+    Page<CampaignResponse> getCampaignByName(String campaignName, Pageable pageable);
 }

@@ -66,9 +66,24 @@ public class CampaignController {
     }
 
     @CrossOrigin
-    @PutMapping("/approve-campaign")
+    @PutMapping("/approve-campaign/{id}")
     public ResponseMessage approveCampaign(@PathVariable Long id) {
-        Campaign approvedCampaign = campaignService.approveCampaign(id);
-        return new ResponseMessage(true, "Campaign Berhasil disetujui");
+        return campaignService.approveCampaign(id);
+    }
+
+    @GetMapping("/category")
+    public Page<CampaignResponse> getCampaignByCategoryName(@RequestParam String campaignCategory,
+                                                            @RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return campaignService.getCampaignsByCategoryName(campaignCategory, pageRequest);
+    }
+
+    @GetMapping("/campaign-name")
+    public Page<CampaignResponse> getCampaignByCampaignName(@RequestParam String campaignName,
+                                                            @RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return campaignService.getCampaignsByCategoryName(campaignName, pageRequest);
     }
 }

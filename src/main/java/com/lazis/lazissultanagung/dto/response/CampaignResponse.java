@@ -22,9 +22,9 @@ public class CampaignResponse{
     private double currentAmount;
     private String location;
     private boolean active;
-    private boolean approved;
     private double pengajuan;
     private double realisasi;
     private double distribution;
+    private boolean approved;
     private boolean emergency;
 }

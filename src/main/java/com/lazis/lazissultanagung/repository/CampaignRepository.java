@@ -1,5 +1,6 @@
 package com.lazis.lazissultanagung.repository;
 
+import com.lazis.lazissultanagung.dto.response.CampaignResponse;
 import com.lazis.lazissultanagung.model.Campaign;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +18,10 @@ import java.util.Optional;
 @Repository
 public interface CampaignRepository extends JpaRepository<Campaign, Long> {
 
-//    @Query("SELECT c FROM Campaign c WHERE c.category.categoryName = :categoryName " +
-//            "AND c.active = true " +
-//            "AND c.approved = true ORDER BY c.campaignId DESC")
-//    Page<Campaign> findByCategoryName(@Param("categoryName") CampaignCategory categoryName, Pageable pageable);
+    @Query("SELECT c FROM Campaign c WHERE c.campaignCategory.campaignCategory = :campaignCategory " +
+            "AND c.active = true " +
+            "AND c.approved = true ORDER BY c.campaignId DESC")
+    Page<Campaign> findByCategoryName(@Param("campaignCategory") String campaignCategory, Pageable pageable);
 
 
 //    List<Campaign> findByApproved(boolean approved);
@@ -36,8 +37,8 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
 //
 //    Campaign findById(long campaignId);
 //
-//    @Query("SELECT c FROM Campaign c WHERE LOWER(c.campaignName) LIKE LOWER(CONCAT('%', :campaignName, '%')) AND c.approved = true AND c.active = true")
-//    Page<Campaign> findByCampaignName(String campaignName, Pageable pageable);
+    @Query("SELECT c FROM Campaign c WHERE LOWER(c.campaignName) LIKE LOWER(CONCAT('%', :campaignName, '%')) AND c.approved = true AND c.active = true")
+    Page<Campaign> findByCampaignName(@Param("campaignName") String campaignName, Pageable pageable);
 //
 //    @Query("SELECT c FROM Campaign c WHERE YEAR(c.startDate) = :year")
 //    Page<Campaign> findByYear(@Param("year") int year, Pageable pageable);

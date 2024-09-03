@@ -26,8 +26,5 @@ public class CampaignRequest {
     @Column(nullable = false, updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
-
-    @Column(columnDefinition = "BOOLEAN")
-    private boolean active;
     private boolean emergency;
 }

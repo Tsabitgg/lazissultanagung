@@ -77,15 +77,15 @@ public class CampaignServiceImpl implements CampaignService {
             campaign.setCurrentAmount(campaignRequest.getCurrentAmount());
             campaign.setStartDate(campaignRequest.getStartDate());
             campaign.setEndDate(campaignRequest.getEndDate());
-            campaign.setActive(campaignRequest.isActive());
+            campaign.setActive(true);
             campaign.setAdmin(existingAdmin);
             campaign.setDistribution(0.0);
-            if (existingAdmin.getRole().equals(ERole.ADMIN)){
+            if (existingAdmin.getRole().equals(ERole.ADMIN)) {
                 campaign.setApproved(true);
-            } else if (existingAdmin.getRole().equals(ERole.SUB_ADMIN)){
+            } else if (existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
                 campaign.setApproved(false);
             }
-            campaign.setEmergency(campaignRequest.isEmergency()); // Set initial emergency status
+            campaign.setEmergency(campaignRequest.isEmergency());
 
             // Save campaign to database
             Campaign savedCampaign = campaignRepository.save(campaign);
@@ -121,6 +121,7 @@ public class CampaignServiceImpl implements CampaignService {
         return campaignRepository.findById(id)
                 .map(campaign -> {
                     CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+                    response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
                     response.setCreator(campaign.getAdmin().getUsername());
                     return response;
                 });
@@ -128,16 +129,16 @@ public class CampaignServiceImpl implements CampaignService {
 
 
     @Override
-    public ResponseMessage deleteCampaign(Long id){
+    public ResponseMessage deleteCampaign(Long id) {
         Campaign deleteCampaign = campaignRepository.findById(id)
-                .orElseThrow(()-> new BadRequestException("Campaign tidak ditemukan"));
+                .orElseThrow(() -> new BadRequestException("Campaign tidak ditemukan"));
         campaignRepository.delete(deleteCampaign);
         return new ResponseMessage(true, "Campaign Berhasil Dihapus");
     }
 
     @Override
     @Transactional
-    public Campaign approveCampaign(Long id) throws BadRequestException {
+    public ResponseMessage approveCampaign(Long id) throws BadRequestException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -149,11 +150,12 @@ public class CampaignServiceImpl implements CampaignService {
             }
 
             Campaign campaign = campaignRepository.findById(id)
-                            .orElseThrow(()-> new BadRequestException("Campaign tidak ditemukan"));
+                    .orElseThrow(() -> new BadRequestException("Campaign tidak ditemukan"));
 
             campaign.setApproved(true);
+            campaignRepository.save(campaign);
 
-            return campaignRepository.save(campaign);
+            return new ResponseMessage(true, "Campaign berhasil disetujui");
         }
         throw new BadRequestException("Admin tidak ditemukan");
     }
@@ -179,4 +181,25 @@ public class CampaignServiceImpl implements CampaignService {
         });
     }
 
+    @Override
+    public Page<CampaignResponse> getCampaignsByCategoryName(String campaignCategory, Pageable pageable) {
+        Page<Campaign> campaigns = campaignRepository.findByCategoryName(campaignCategory, pageable);
+        return campaigns.map(campaign -> {
+            CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
+            response.setCreator(campaign.getAdmin().getUsername());
+            return response;
+        });
+    }
+
+    @Override
+    public Page<CampaignResponse> getCampaignByName(String campaignName, Pageable pageable) {
+        Page<Campaign> campaigns = campaignRepository.findByCampaignName(campaignName, pageable);
+        return campaigns.map(campaign -> {
+            CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
+            response.setCreator(campaign.getAdmin().getUsername());
+            return response;
+        });
+    }
 }
