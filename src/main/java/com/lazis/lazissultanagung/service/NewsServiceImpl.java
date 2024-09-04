@@ -72,7 +72,7 @@ public class NewsServiceImpl implements NewsService {
                     .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
             if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat campaign");
+                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat Berita");
             }
 
             String imageUrl = null;
@@ -186,6 +186,17 @@ public class NewsServiceImpl implements NewsService {
             return new ResponseMessage(true, "Berita Berhasil disetujui");
         }
         throw new BadRequestException("Admin tidak ditemukan");
+    }
+
+    @Override
+    public Page<NewsResponse> getNewsByTitle(String title, Pageable pageable) {
+        Page<News> existingNews = newsRepository.findByTitle(title, pageable);
+        return existingNews.map(news -> {
+            NewsResponse response = modelMapper.map(news, NewsResponse.class);
+            response.setNewsTopic(news.getNewsTopic().getNewsTopic());
+            response.setCreator(news.getAdmin().getUsername());
+            return response;
+        });
     }
 
 }

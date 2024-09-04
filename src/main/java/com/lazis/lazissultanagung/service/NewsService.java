@@ -26,4 +26,6 @@ public interface NewsService {
 
     @Transactional
     ResponseMessage approveNews(Long id) throws BadRequestException;
+
+    Page<NewsResponse> getNewsByTitle(String title, Pageable pageable);
 }

@@ -63,4 +63,12 @@ public class NewsController {
     public ResponseMessage approveNews(@PathVariable Long id) {
         return newsService.approveNews(id);
     }
+
+    @GetMapping("/title")
+    public Page<NewsResponse> getNewsByTitle(@RequestParam String title,
+                                                            @RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return newsService.getNewsByTitle(title, pageRequest);
+    }
 }
