@@ -29,6 +29,10 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
 
     @Query("SELECT c FROM Campaign c WHERE c.active = true AND c.approved = true ORDER BY c.campaignId DESC")
     Page<Campaign> findCampaignByActiveAndApproved(Pageable pageable);
+
+    @Query("SELECT c FROM Campaign c WHERE c.active = true AND c.approved = true AND c.emergency = true ORDER BY c.campaignId DESC")
+    Page<Campaign> findCampaignByEmergency(Pageable pageable);
+
 //
 //    @Query("SELECT c FROM Campaign c WHERE c.active = false AND c.approved = true ORDER BY c.campaignId DESC")
 //    Page<Campaign> findHistoryCampaign(Pageable pageable);

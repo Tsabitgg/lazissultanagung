@@ -202,4 +202,15 @@ public class CampaignServiceImpl implements CampaignService {
             return response;
         });
     }
+
+    @Override
+    public Page<CampaignResponse> getCampaignByEmergency(Pageable pageable) {
+        Page<Campaign> campaigns = campaignRepository.findCampaignByEmergency(pageable);
+        return campaigns.map(campaign -> {
+            CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
+            response.setCreator(campaign.getAdmin().getUsername());
+            return response;
+        });
+    }
 }

@@ -30,4 +30,6 @@ public interface CampaignService {
     Page<CampaignResponse> getCampaignsByCategoryName(String categoryName, Pageable pageable);
 
     Page<CampaignResponse> getCampaignByName(String campaignName, Pageable pageable);
+
+    Page<CampaignResponse> getCampaignByEmergency(Pageable pageable);
 }

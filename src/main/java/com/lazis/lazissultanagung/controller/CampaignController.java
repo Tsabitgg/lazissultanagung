@@ -86,4 +86,11 @@ public class CampaignController {
         PageRequest pageRequest = PageRequest.of(page, pageSize);
         return campaignService.getCampaignsByCategoryName(campaignName, pageRequest);
     }
+
+    @GetMapping("/emergency")
+    public Page<CampaignResponse> getCampaignByEmergency(@RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return campaignService.getCampaignByEmergency(pageRequest);
+    }
 }
