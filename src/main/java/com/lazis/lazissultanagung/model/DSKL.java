@@ -14,7 +14,7 @@ public class DSKL {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String dsklCategory;
+    private String categoryName;
     private double amount;
     private double distribution;
 

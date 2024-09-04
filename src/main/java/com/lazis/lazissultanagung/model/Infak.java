@@ -14,7 +14,7 @@ public class Infak {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String infakCategory;
+    private String categoryName;
 
     private double amount;
 

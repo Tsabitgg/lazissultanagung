@@ -51,7 +51,7 @@ public class InfakServiceImpl implements InfakService{
         Infak updateInfak = infakRepository.findById(id)
                 .orElseThrow(()-> new BadRequestException("Infak tidak ditemukan"));
 
-        updateInfak.setInfakCategory(infak.getInfakCategory());
+        updateInfak.setCategoryName(infak.getCategoryName());
         updateInfak.setAmount(infak.getAmount());
         updateInfak.setDistribution(infak.getDistribution());
         updateInfak.setCoa(infak.getCoa());

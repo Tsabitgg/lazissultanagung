@@ -51,7 +51,7 @@ public class WakafServiceImpl implements WakafService {
         Wakaf updateWakaf = wakafRepository.findById(id)
                 .orElseThrow(()-> new BadRequestException("Wakaf tidak ditemukan"));
 
-        updateWakaf.setWakafCategory(wakaf.getWakafCategory());
+        updateWakaf.setCategoryName(wakaf.getCategoryName());
         updateWakaf.setAmount(wakaf.getAmount());
         updateWakaf.setDistribution(wakaf.getDistribution());
         updateWakaf.setCoa(wakaf.getCoa());

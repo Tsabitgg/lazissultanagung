@@ -14,7 +14,7 @@ public class Wakaf {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String wakafCategory;
+    private String categoryName;
     private double amount;
     private double distribution;
 

@@ -51,7 +51,7 @@ public class ZakatServiceImpl implements ZakatService {
         Zakat updateZakat = zakatRepository.findById(id)
                 .orElseThrow(()-> new BadRequestException("Zakat tidak ditemukan"));
 
-        updateZakat.setZakatCategory(zakat.getZakatCategory());
+        updateZakat.setCategoryName(zakat.getCategoryName());
         updateZakat.setAmount(zakat.getAmount());
         updateZakat.setDistribution(zakat.getDistribution());
         updateZakat.setCoa(zakat.getCoa());

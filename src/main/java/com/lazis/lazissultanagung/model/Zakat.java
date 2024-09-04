@@ -15,7 +15,7 @@ public class Zakat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String zakatCategory;
+    private String categoryName;
     private double amount;
     private double distribution;
 

@@ -52,7 +52,7 @@ public class DSKLServiceImpl implements DSKLService{
         DSKL updateDSKL = dsklRepository.findById(id)
                 .orElseThrow(()-> new BadRequestException("DSKL tidak ditemukan"));
 
-        updateDSKL.setDsklCategory(dskl.getDsklCategory());
+        updateDSKL.setCategoryName(dskl.getCategoryName());
         updateDSKL.setAmount(dskl.getAmount());
         updateDSKL.setDistribution(dskl.getDistribution());
         updateDSKL.setCoa(dskl.getCoa());
