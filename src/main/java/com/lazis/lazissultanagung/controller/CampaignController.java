@@ -84,7 +84,7 @@ public class CampaignController {
                                                             @RequestParam(name = "page", defaultValue = "0") int page) {
         int pageSize = 12;
         PageRequest pageRequest = PageRequest.of(page, pageSize);
-        return campaignService.getCampaignsByCategoryName(campaignName, pageRequest);
+        return campaignService.getCampaignByName(campaignName, pageRequest);
     }
 
     @GetMapping("/emergency")
