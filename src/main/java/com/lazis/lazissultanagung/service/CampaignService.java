@@ -32,4 +32,8 @@ public interface CampaignService {
     Page<CampaignResponse> getCampaignByName(String campaignName, Pageable pageable);
 
     Page<CampaignResponse> getCampaignByEmergency(Pageable pageable);
+
+    Page<CampaignResponse> getPendingCampaign(Pageable pageable);
+
+    Page<CampaignResponse> getHistoryCampaign(Pageable pageable);
 }

@@ -93,4 +93,18 @@ public class CampaignController {
         PageRequest pageRequest = PageRequest.of(page, pageSize);
         return campaignService.getCampaignByEmergency(pageRequest);
     }
+
+    @GetMapping("/pending")
+    public Page<CampaignResponse> getPendingCampaign(@RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return campaignService.getPendingCampaign(pageRequest);
+    }
+
+    @GetMapping("/history")
+    public Page<CampaignResponse> getHistoryCampaign(@RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return campaignService.getHistoryCampaign(pageRequest);
+    }
 }
