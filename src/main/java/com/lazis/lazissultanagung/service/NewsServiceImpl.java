@@ -199,4 +199,15 @@ public class NewsServiceImpl implements NewsService {
         });
     }
 
+    @Override
+    public Page<NewsResponse> getNewsByTopic(String newsTopic, Pageable pageable) {
+        Page<News> existingNews = newsRepository.findByTopicName(newsTopic, pageable);
+        return existingNews.map(news -> {
+            NewsResponse response = modelMapper.map(news, NewsResponse.class);
+            response.setNewsTopic(news.getNewsTopic().getNewsTopic());
+            response.setCreator(news.getAdmin().getUsername());
+            return response;
+        });
+    }
+
 }

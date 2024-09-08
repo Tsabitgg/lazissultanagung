@@ -3,9 +3,7 @@ package com.lazis.lazissultanagung.controller;
 import com.lazis.lazissultanagung.dto.request.NewsRequest;
 import com.lazis.lazissultanagung.dto.response.NewsResponse;
 import com.lazis.lazissultanagung.dto.response.ResponseMessage;
-import com.lazis.lazissultanagung.model.News;
 import com.lazis.lazissultanagung.service.NewsService;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -66,9 +64,17 @@ public class NewsController {
 
     @GetMapping("/title")
     public Page<NewsResponse> getNewsByTitle(@RequestParam String title,
-                                                            @RequestParam(name = "page", defaultValue = "0") int page) {
+                                             @RequestParam(name = "page", defaultValue = "0") int page) {
         int pageSize = 12;
         PageRequest pageRequest = PageRequest.of(page, pageSize);
         return newsService.getNewsByTitle(title, pageRequest);
+    }
+
+    @GetMapping("/topic")
+    public Page<NewsResponse> getNewsByTopic(@RequestParam String newsTopic,
+                                             @RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return newsService.getNewsByTopic(newsTopic, pageRequest);
     }
 }

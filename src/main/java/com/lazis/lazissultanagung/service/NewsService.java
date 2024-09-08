@@ -28,4 +28,6 @@ public interface NewsService {
     ResponseMessage approveNews(Long id) throws BadRequestException;
 
     Page<NewsResponse> getNewsByTitle(String title, Pageable pageable);
+
+    Page<NewsResponse> getNewsByTopic(String newsTopic, Pageable pageable);
 }
