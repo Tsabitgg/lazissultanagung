@@ -7,6 +7,7 @@ import com.lazis.lazissultanagung.model.Admin;
 import com.lazis.lazissultanagung.model.Donatur;
 import com.lazis.lazissultanagung.service.AuthService;
 
+import com.lazis.lazissultanagung.service.EmailSenderService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,9 @@ public class AuthController {
 
     @Autowired
     AuthService authService;
+
+    @Autowired
+    EmailSenderService emailSenderService;
 
     @PostMapping("/signin/donatur")
     public ResponseEntity<?> authenticateDonatur(@Valid @RequestBody SignInRequest signInRequest, HttpServletResponse response) {
@@ -44,6 +48,12 @@ public class AuthController {
     @PostMapping("/signup/donatur")
     public ResponseEntity<?> registerDonatur(@RequestBody SignUpRequest signUpRequest) {
         Donatur donatur = authService.registerDonatur(signUpRequest);
+
+//        String toEmail = signUpRequest.getEmail();
+//        String subject = "Laporan Donasi Anda";
+//        String body = "Bismillah Bisaa ini ngirim email";
+//        emailSenderService.sendRegisterReport(toEmail, subject, body);
+
         return ResponseEntity.ok(donatur);
     }
 }
