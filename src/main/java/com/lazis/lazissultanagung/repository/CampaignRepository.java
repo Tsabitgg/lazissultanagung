@@ -2,10 +2,12 @@ package com.lazis.lazissultanagung.repository;
 
 import com.lazis.lazissultanagung.dto.response.CampaignResponse;
 import com.lazis.lazissultanagung.model.Campaign;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -33,9 +35,11 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
     @Query("SELECT c FROM Campaign c WHERE c.active = true AND c.approved = true AND c.emergency = true ORDER BY c.campaignId DESC")
     Page<Campaign> findCampaignByEmergency(Pageable pageable);
 
-//
-//    @Query("SELECT c FROM Campaign c WHERE c.active = false AND c.approved = true ORDER BY c.campaignId DESC")
-//    Page<Campaign> findHistoryCampaign(Pageable pageable);
+    @Query("SELECT c FROM Campaign c WHERE c.active = true AND c.approved = false ORDER BY c.campaignId DESC")
+    Page<Campaign> findPendingCampaign(Pageable pageable);
+
+    @Query("SELECT c FROM Campaign c WHERE c.active = false AND c.approved = true ORDER BY c.campaignId DESC")
+    Page<Campaign> findHistoryCampaign(Pageable pageable);
 //
 //    Campaign findByCampaignCode(String campaignCode);
 //
@@ -73,4 +77,8 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
 //
 //    Page<Campaign> findAllByApprovedIsTrue(Pageable pageable);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE Campaign c SET c.currentAmount = c.currentAmount + :transactionAmount WHERE c.campaignId = :campaignId")
+    void updateCampaignCurrentAmount(@Param("campaignId") Long campaignId, @Param("transactionAmount") double transactionAmount);
 }

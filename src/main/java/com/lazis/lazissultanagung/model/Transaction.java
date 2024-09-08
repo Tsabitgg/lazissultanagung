@@ -39,11 +39,11 @@ public class Transaction {
     private String message;
 
     @Column(nullable = false, updatable = false)
-    @JsonFormat(pattern = "yyyyMMddHHmmss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:s")
     private LocalDateTime transactionDate;
 
     private String channel;
-    private long vaNumber;
+    private String vaNumber;
     private String refNo;
     private String method;
 
