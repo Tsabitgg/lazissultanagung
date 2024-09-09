@@ -62,19 +62,13 @@ public class NewsController {
         return newsService.approveNews(id);
     }
 
-    @GetMapping("/title")
-    public Page<NewsResponse> getNewsByTitle(@RequestParam String title,
-                                             @RequestParam(name = "page", defaultValue = "0") int page) {
+    @GetMapping("/search")
+    public Page<NewsResponse> getNews(@RequestParam(required = false) String title,
+                                      @RequestParam(required = false) String newsTopic,
+                                      @RequestParam(name = "page", defaultValue = "0") int page) {
         int pageSize = 12;
         PageRequest pageRequest = PageRequest.of(page, pageSize);
-        return newsService.getNewsByTitle(title, pageRequest);
+        return newsService.getNewsByTitleAndTopic(title, newsTopic, pageRequest);
     }
 
-    @GetMapping("/topic")
-    public Page<NewsResponse> getNewsByTopic(@RequestParam String newsTopic,
-                                             @RequestParam(name = "page", defaultValue = "0") int page) {
-        int pageSize = 12;
-        PageRequest pageRequest = PageRequest.of(page, pageSize);
-        return newsService.getNewsByTopic(newsTopic, pageRequest);
-    }
 }

@@ -14,10 +14,12 @@ public interface NewsRepository extends JpaRepository<News, Long> {
     @Query("SELECT n FROM News n WHERE n.approved = true ORDER BY n.date DESC")
     Page<News> findAllApprovedNews(Pageable pageable);
 
-    @Query("SELECT n FROM News n WHERE LOWER(n.title) LIKE LOWER(CONCAT('%', :title, '%')) AND n.approved = true ORDER BY n.date DESC")
-    Page<News> findByTitle(@Param("title") String title, Pageable pageable);
+    @Query("SELECT n FROM News n WHERE " +
+            "(LOWER(n.title) LIKE LOWER(CONCAT('%', :title, '%')) OR :title IS NULL) " +
+            "AND (n.newsTopic.newsTopic = :newsTopic OR :newsTopic IS NULL) " +
+            "AND n.approved = true ORDER BY n.date DESC")
+    Page<News> findByTitleAndTopic(@Param("title") String title,
+                                   @Param("newsTopic") String newsTopic,
+                                   Pageable pageable);
 
-    @Query("SELECT n FROM News n WHERE n.newsTopic.newsTopic = :newsTopic " +
-            "AND n.approved = true ORDER BY n.id DESC")
-    Page<News> findByTopicName(@Param("newsTopic") String newsTopic, Pageable pageable);
 }
