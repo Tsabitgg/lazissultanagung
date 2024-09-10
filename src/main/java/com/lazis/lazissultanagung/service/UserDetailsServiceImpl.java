@@ -24,7 +24,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
-        // Mencoba mencari user berdasarkan nomor telepon
         Optional<Donatur> donaturOptional = donaturRepository.findByPhoneNumber(input);
         Optional<Admin> adminOptional = adminRepository.findByPhoneNumber(input);
 
@@ -38,7 +37,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             return UserDetailsImpl.build(admin);
         }
 
-        // Jika tidak ditemukan, coba cari dengan email
         donaturOptional = donaturRepository.findByEmail(input);
         adminOptional = adminRepository.findByEmail(input);
 
@@ -52,7 +50,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             return UserDetailsImpl.build(admin);
         }
 
-        // Jika user tidak ditemukan
         throw new UsernameNotFoundException("User tidak ditemukan dengan inputan: " + input);
     }
 }

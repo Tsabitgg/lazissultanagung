@@ -88,7 +88,6 @@ public class AuthServiceImpl implements AuthService {
 
         admin.setImage("https://res.cloudinary.com/donation-application/image/upload/v1711632747/default-avatar-icon-of-social-media-user-vector_thrtbz.jpg");
 
-        // Periksa role yang diinginkan
         if (signUpRequest.getRole() != null) {
             if (signUpRequest.getRole().equalsIgnoreCase("admin")) {
                 admin.setRole(ERole.ADMIN);
@@ -106,8 +105,6 @@ public class AuthServiceImpl implements AuthService {
             long vaNumber = min + (long) (random.nextDouble() * (max - min));
             admin.setVaNumber(vaNumber);
         }
-
-        // Simpan admin baru ke database
         adminRepository.save(admin);
 
         return admin;

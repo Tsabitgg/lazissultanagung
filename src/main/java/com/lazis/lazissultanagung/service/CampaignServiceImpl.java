@@ -44,11 +44,9 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public CampaignResponse createCampaign(CampaignRequest campaignRequest) {
-        // Find category
         CampaignCategory campaignCategory = campaignCategoryRepository.findById(campaignRequest.getCategoryId())
                 .orElseThrow(() -> new BadRequestException("Kategori Tidak ditemukan"));
 
-        // Get current authenticated admin
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -59,13 +57,11 @@ public class CampaignServiceImpl implements CampaignService {
                 throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat campaign");
             }
 
-            // Handle image upload to Cloudinary
             String imageUrl = null;
             if (campaignRequest.getCampaignImage() != null && !campaignRequest.getCampaignImage().isEmpty()) {
                 imageUrl = cloudinaryService.upload(campaignRequest.getCampaignImage());
             }
 
-            // Create new campaign
             Campaign campaign = new Campaign();
             campaign.setCampaignCategory(campaignCategory);
             campaign.setCampaignName(campaignRequest.getCampaignName());
@@ -87,13 +83,10 @@ public class CampaignServiceImpl implements CampaignService {
             }
             campaign.setEmergency(campaignRequest.isEmergency());
 
-            // Save campaign to database
             Campaign savedCampaign = campaignRepository.save(campaign);
 
-            // Map Campaign to CampaignResponse using ModelMapper
             CampaignResponse campaignResponse = modelMapper.map(savedCampaign, CampaignResponse.class);
 
-            // Additional manual mappings, if necessary
             campaignResponse.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
             campaignResponse.setCreator(existingAdmin.getUsername());
 

@@ -56,7 +56,6 @@ public class TransactionServiceImpl implements TransactionService{
             throw new BadRequestException("Username atau nomor handphone tidak boleh kosong");
         }
 
-        // Buat transaksi baru dengan data dari request
         Transaction transaction = new Transaction();
         transaction.setUsername(transactionRequest.getUsername());
         transaction.setPhoneNumber(transactionRequest.getPhoneNumber());
@@ -64,7 +63,6 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setTransactionAmount(transactionRequest.getTransactionAmount());
         transaction.setMessage(transactionRequest.getMessage());
 
-        // Tentukan tipe transaksi yang diproses
         Object responseDto = null;
         switch (categoryType) {
             case "campaign":
@@ -108,10 +106,8 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setVaNumber("9876547894321567");
         transaction.setSuccess(true);
 
-        // Simpan transaksi ke database
         transaction = transactionRepository.save(transaction);
 
-        // Update jumlah transaksi terkait berdasarkan tipe transaksi
         switch (categoryType) {
             case "campaign":
                 campaignRepository.updateCampaignCurrentAmount(id, transactionRequest.getTransactionAmount());
