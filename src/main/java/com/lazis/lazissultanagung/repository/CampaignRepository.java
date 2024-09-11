@@ -29,7 +29,7 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
 //    List<Campaign> findByApproved(boolean approved);
 //    List<Campaign> findCampaignByActive(boolean isActive);
 
-    @Query("SELECT c FROM Campaign c WHERE c.active = true AND c.approved = true ORDER BY c.campaignId DESC")
+    @Query("SELECT c FROM Campaign c WHERE c.active = true AND c.approved = true ORDER BY c.emergency DESC, c.campaignId DESC")
     Page<Campaign> findCampaignByActiveAndApproved(Pageable pageable);
 
     @Query("SELECT c FROM Campaign c WHERE c.active = true AND c.approved = true AND c.emergency = true ORDER BY c.campaignId DESC")
