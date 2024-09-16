@@ -1,12 +1,15 @@
 package com.lazis.lazissultanagung.controller;
 
+import com.lazis.lazissultanagung.dto.request.ResetPasswordRequest;
 import com.lazis.lazissultanagung.dto.response.JwtResponse;
 import com.lazis.lazissultanagung.dto.request.SignInRequest;
 import com.lazis.lazissultanagung.dto.request.SignUpRequest;
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.model.Admin;
 import com.lazis.lazissultanagung.model.Donatur;
 import com.lazis.lazissultanagung.service.AuthService;
 
+import com.lazis.lazissultanagung.service.DonaturService;
 import com.lazis.lazissultanagung.service.EmailSenderService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +24,7 @@ import javax.validation.Valid;
 public class AuthController {
 
     @Autowired
-    AuthService authService;
+    private AuthService authService;
 
     @Autowired
     EmailSenderService emailSenderService;
@@ -56,4 +59,11 @@ public class AuthController {
 
         return ResponseEntity.ok(donatur);
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseMessage> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+        ResponseMessage responseMessage = authService.resetPassword(resetPasswordRequest);
+        return ResponseEntity.ok(responseMessage);
+    }
+
 }

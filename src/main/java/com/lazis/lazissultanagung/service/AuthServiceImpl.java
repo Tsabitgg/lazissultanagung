@@ -1,8 +1,10 @@
 package com.lazis.lazissultanagung.service;
 
+import com.lazis.lazissultanagung.dto.request.ResetPasswordRequest;
 import com.lazis.lazissultanagung.dto.response.JwtResponse;
 import com.lazis.lazissultanagung.dto.request.SignInRequest;
 import com.lazis.lazissultanagung.dto.request.SignUpRequest;
+import com.lazis.lazissultanagung.dto.response.ResponseMessage;
 import com.lazis.lazissultanagung.enumeration.ERole;
 import com.lazis.lazissultanagung.exception.BadRequestException;
 import com.lazis.lazissultanagung.model.Admin;
@@ -38,6 +40,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private EmailSenderService emailSenderService;
 
     @Override
     public JwtResponse authenticateUser(SignInRequest signinRequest, HttpServletResponse response, String userType) throws BadRequestException {
@@ -145,6 +150,39 @@ public class AuthServiceImpl implements AuthService {
         donaturRepository.save(donatur);
 
         return donatur;
+    }
+
+    @Override
+    public ResponseMessage resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        // Mencari donatur berdasarkan email
+        Donatur existingDonatur = donaturRepository.findByEmail(resetPasswordRequest.getEmail())
+                .orElseThrow(() -> new BadRequestException("Akun dengan email ini tidak ditemukan"));
+
+        // Generate password random
+        String randomPassword = generateRandomPassword(10);
+
+        // Hash password random dan simpan ke database
+        existingDonatur.setPassword(encoder.encode(randomPassword));
+        donaturRepository.save(existingDonatur);
+
+        // Kirim email dengan password random ke pengguna
+        emailSenderService.sendEmailResetPassword(existingDonatur.getEmail(), "Reset Password",
+                "Password baru Anda adalah: " + randomPassword);
+
+        return new ResponseMessage(true, "Password berhasil direset. Silakan cek email Anda untuk password baru.");
+    }
+
+    // Fungsi untuk generate password acak
+    private String generateRandomPassword(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder password = new StringBuilder();
+        Random random = new Random();
+
+        for (int i = 0; i < length; i++) {
+            password.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return password.toString();
     }
 
 }
