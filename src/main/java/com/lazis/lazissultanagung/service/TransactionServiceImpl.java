@@ -39,6 +39,9 @@ public class TransactionServiceImpl implements TransactionService{
     private DonaturRepository donaturRepository;
 
     @Autowired
+    private MessagesRepository messagesRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Override
@@ -111,6 +114,15 @@ public class TransactionServiceImpl implements TransactionService{
         switch (categoryType) {
             case "campaign":
                 campaignRepository.updateCampaignCurrentAmount(id, transactionRequest.getTransactionAmount());
+
+                Messages messages = new Messages();
+                messages.setUsername(transaction.getUsername());
+                messages.setMessagesDate(transaction.getTransactionDate());
+                messages.setMessages(transaction.getMessage());
+                messages.setCampaign(transaction.getCampaign());
+                messages.setAamiin(messages.getAamiin() +1);
+                messagesRepository.save(messages);
+
                 break;
             case "zakat":
                 zakatRepository.updateZakatCurrentAmount(id, transactionRequest.getTransactionAmount());
@@ -127,6 +139,41 @@ public class TransactionServiceImpl implements TransactionService{
         }
 
         return new TransactionResponse(transaction, responseDto);
+    }
+
+    @Override
+    public Page<TransactionResponse> getTransactionsByCampaignId(Long campaignId, Pageable pageable) {
+        Page<Transaction> transactions = transactionRepository.findByCampaignId(campaignId, pageable);
+
+        return transactions.map(transaction -> new TransactionResponse(transaction, getCategoryData(transaction)));
+    }
+
+    @Override
+    public Page<TransactionResponse> getTransactionsByZakatId(Long zakatId, Pageable pageable) {
+        Page<Transaction> transactions = transactionRepository.findByZakatId(zakatId, pageable);
+
+        return transactions.map(transaction -> new TransactionResponse(transaction, getCategoryData(transaction)));
+    }
+
+    @Override
+    public Page<TransactionResponse> getTransactionsByInfakId(Long infakId, Pageable pageable) {
+        Page<Transaction> transactions = transactionRepository.findByInfakId(infakId, pageable);
+
+        return transactions.map(transaction -> new TransactionResponse(transaction, getCategoryData(transaction)));
+    }
+
+    @Override
+    public Page<TransactionResponse> getTransactionsByDSKLId(Long dsklId, Pageable pageable) {
+        Page<Transaction> transactions = transactionRepository.findByDSKLId(dsklId, pageable);
+
+        return transactions.map(transaction -> new TransactionResponse(transaction, getCategoryData(transaction)));
+    }
+
+    @Override
+    public Page<TransactionResponse> getTransactionsByWakafId(Long wakafId, Pageable pageable) {
+        Page<Transaction> transactions = transactionRepository.findByWakafId(wakafId, pageable);
+
+        return transactions.map(transaction -> new TransactionResponse(transaction, getCategoryData(transaction)));
     }
 
     private Object getCategoryData(Transaction transaction) {

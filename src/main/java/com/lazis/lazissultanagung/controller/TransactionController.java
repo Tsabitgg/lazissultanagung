@@ -21,11 +21,13 @@ public class TransactionController {
 
     @GetMapping
     public ResponseEntity<Page<TransactionResponse>> getTransactions(
+            @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(required = false) Integer month,
-            @RequestParam(required = false) Integer year,
-            Pageable pageable) {
+            @RequestParam(required = false) Integer year) {
 
-        Page<TransactionResponse> transactions = transactionService.getAllTransaction(month, year, pageable);
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<TransactionResponse> transactions = transactionService.getAllTransaction(month, year, pageRequest);
         return ResponseEntity.ok(transactions);
     }
 
@@ -35,5 +37,60 @@ public class TransactionController {
                                                                  @RequestBody TransactionRequest transactionRequest) {
         TransactionResponse transactionResponse = transactionService.createTransactionOFF(categoryType, id, transactionRequest);
         return ResponseEntity.ok(transactionResponse);
+    }
+
+    @GetMapping("/campaign/{campaignId}")
+    public ResponseEntity<Page<TransactionResponse>> getTransactionsByCampaignId(
+            @PathVariable Long campaignId,
+            @RequestParam(name = "page", defaultValue = "0") int page) {
+
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<TransactionResponse> transactions = transactionService.getTransactionsByCampaignId(campaignId, pageRequest);
+        return ResponseEntity.ok(transactions);
+    }
+
+    @GetMapping("/zakat/{zakatId}")
+    public ResponseEntity<Page<TransactionResponse>> getTransactionsByZakatId(
+            @PathVariable Long zakatId,
+            @RequestParam(name = "page", defaultValue = "0") int page) {
+
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<TransactionResponse> transactions = transactionService.getTransactionsByZakatId(zakatId, pageRequest);
+        return ResponseEntity.ok(transactions);
+    }
+
+    @GetMapping("/infak/{infakId}")
+    public ResponseEntity<Page<TransactionResponse>> getTransactionsByInfakId(
+            @PathVariable Long infakId,
+            @RequestParam(name = "page", defaultValue = "0") int page) {
+
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<TransactionResponse> transactions = transactionService.getTransactionsByInfakId(infakId, pageRequest);
+        return ResponseEntity.ok(transactions);
+    }
+
+    @GetMapping("/dskl/{dsklId}")
+    public ResponseEntity<Page<TransactionResponse>> getTransactionsByDSKLId(
+            @PathVariable Long dsklId,
+            @RequestParam(name = "page", defaultValue = "0") int page) {
+
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<TransactionResponse> transactions = transactionService.getTransactionsByDSKLId(dsklId, pageRequest);
+        return ResponseEntity.ok(transactions);
+    }
+
+    @GetMapping("/wakaf/{wakafId}")
+    public ResponseEntity<Page<TransactionResponse>> getTransactionsByWakafId(
+            @PathVariable Long wakafId,
+            @RequestParam(name = "page", defaultValue = "0") int page) {
+
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<TransactionResponse> transactions = transactionService.getTransactionsByWakafId(wakafId, pageRequest);
+        return ResponseEntity.ok(transactions);
     }
 }

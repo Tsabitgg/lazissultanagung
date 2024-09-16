@@ -22,4 +22,24 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("year") Integer year,
             Pageable pageable);
 
+    @Query("SELECT t FROM Transaction t WHERE t.category = 'campaign' " +
+            "AND t.campaign.campaignId = :campaignId ORDER BY t.transactionDate DESC ")
+    Page<Transaction> findByCampaignId(@Param("campaignId") Long campaignId, Pageable pageable);
+
+    @Query("SELECT t FROM Transaction t WHERE t.category = 'zakat' " +
+            "AND t.zakat.id = :zakatId ORDER BY t.transactionDate DESC ")
+    Page<Transaction> findByZakatId(@Param("zakatId") Long zakatId, Pageable pageable);
+
+    @Query("SELECT t FROM Transaction t WHERE t.category = 'infak' " +
+            "AND t.infak.id = :infakId ORDER BY t.transactionDate DESC ")
+    Page<Transaction> findByInfakId(@Param("infakId") Long infakId, Pageable pageable);
+
+    @Query("SELECT t FROM Transaction t WHERE t.category = 'dskl' " +
+            "AND t.dskl.id = :dsklId ORDER BY t.transactionDate DESC ")
+    Page<Transaction> findByDSKLId(@Param("dsklId") Long dsklId, Pageable pageable);
+
+    @Query("SELECT t FROM Transaction t WHERE t.category = 'wakaf' " +
+            "AND t.wakaf.id = :wakafId ORDER BY t.transactionDate DESC ")
+    Page<Transaction> findByWakafId(@Param("wakafId") Long wakafId, Pageable pageable);
+
 }

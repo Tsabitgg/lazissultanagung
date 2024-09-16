@@ -36,6 +36,8 @@ public class Transaction {
     private String email;
 
     private double transactionAmount;
+
+    @Column(columnDefinition = "TEXT")
     private String message;
 
     @Column(nullable = false, updatable = false)
