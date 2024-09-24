@@ -51,8 +51,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtResponse authenticateUser(SignInRequest signinRequest, HttpServletResponse response, String userType) throws BadRequestException {
+        // Mencoba untuk menemukan pengguna berdasarkan email atau nomor HP
+        Donatur donatur = donaturRepository.findByEmail(signinRequest.getEmailOrPhoneNumber())
+                .or(() -> donaturRepository.findByPhoneNumber(signinRequest.getEmailOrPhoneNumber()))
+                .orElseThrow(() -> new BadRequestException("Email atau nomor handphone belum terdaftar"));
+
+        // Setelah memastikan pengguna ada, kita coba autentikasi
         try {
-            // Mencoba untuk melakukan autentikasi
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(signinRequest.getEmailOrPhoneNumber(), signinRequest.getPassword()));
 
@@ -82,14 +87,12 @@ public class AuthServiceImpl implements AuthService {
             String username = userDetails.getUsername();
             return new JwtResponse(username, jwt);
 
-        } catch (UsernameNotFoundException e) {
-            // Jika email/no hp tidak ditemukan
-            throw new BadRequestException("Email atau nomor handphone belum terdaftar");
         } catch (BadCredentialsException e) {
             // Jika password salah
             throw new BadRequestException("Password anda salah");
         }
     }
+
 
 
 
