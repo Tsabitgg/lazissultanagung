@@ -1,5 +1,6 @@
 package com.lazis.lazissultanagung.controller;
 
+import com.lazis.lazissultanagung.dto.request.GoogleAccessTokenRequest;
 import com.lazis.lazissultanagung.dto.request.ResetPasswordRequest;
 import com.lazis.lazissultanagung.dto.response.JwtResponse;
 import com.lazis.lazissultanagung.dto.request.SignInRequest;
@@ -13,6 +14,7 @@ import com.lazis.lazissultanagung.service.DonaturService;
 import com.lazis.lazissultanagung.service.EmailSenderService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,15 +64,19 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<?> authenticateWithGoogle(@RequestBody Map<String, String> request) {
-        String accessToken = request.get("access_token");
-
+    public ResponseEntity<JwtResponse> loginWithGoogle(@RequestBody GoogleAccessTokenRequest tokenRequest) {
         try {
-            // Memanggil service untuk autentikasi Google dan menghasilkan JWT
+            // Ambil access_token dari request body
+            String accessToken = tokenRequest.getAccess_token();
+
+            // Lakukan autentikasi dengan Google OAuth2
             String jwtToken = authService.authenticateGoogleUser(accessToken);
-            return ResponseEntity.ok(Map.of("jwt_token", jwtToken));
+
+            // Kembalikan JWT token jika autentikasi sukses
+            return ResponseEntity.ok(new JwtResponse(jwtToken));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("Google token invalid: " + e.getMessage());
+            // Jika gagal, kembalikan pesan error dengan status UNAUTHORIZED
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new JwtResponse("Unauthorized: " + e.getMessage()));
         }
     }
 

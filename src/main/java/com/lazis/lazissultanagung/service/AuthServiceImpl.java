@@ -15,9 +15,14 @@ import com.lazis.lazissultanagung.repository.DonaturRepository;
 import com.lazis.lazissultanagung.security.jwt.JwtUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -158,8 +164,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String authenticateGoogleUser(String accessToken) throws Exception {
-        // Verifikasi access token dengan Google
-        String url = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + accessToken;
+        String url = "https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + accessToken;
         RestTemplate restTemplate = new RestTemplate();
         JsonNode userInfo = restTemplate.getForObject(url, JsonNode.class);
 
@@ -167,11 +172,16 @@ public class AuthServiceImpl implements AuthService {
             throw new Exception("Invalid Google Access Token");
         }
 
-        String email = userInfo.get("email").asText();
-        String username = userInfo.get("name").asText();
-        String picture = userInfo.get("picture").asText();
+        // Ambil data dari Google OAuth2 token
+        String email = userInfo.path("email").asText(null);
+        String username = userInfo.path("email").asText(null);
+        String picture = userInfo.path("picture").asText(null);
 
-        // Cari atau buat user baru
+        if (email == null) {
+            throw new Exception("Email not found in Google token info");
+        }
+
+        // Temukan atau buat user baru
         Donatur donatur = donaturRepository.findByEmail(email)
                 .orElseGet(() -> {
                     Donatur newDonatur = new Donatur();
@@ -179,18 +189,33 @@ public class AuthServiceImpl implements AuthService {
                     newDonatur.setEmail(email);
                     newDonatur.setImage(picture);
                     newDonatur.setCreatedAt(new Date());
+
+                    // Generate nomor VA unik
+                    Random random = new Random();
+                    long min = 1000000000L;
+                    long max = 9999999999L;
+
+                    for (int i = 0; i < 10; i++) {
+                        long vaNumber = min + (long) (random.nextDouble() * (max - min));
+                        newDonatur.setVaNumber(vaNumber);
+                    }
                     return donaturRepository.save(newDonatur);
                 });
 
-        // Autentikasi manual
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(donatur.getEmail(), null, new ArrayList<>())
-        );
+        // Konversi Donatur menjadi UserDetailsImpl
+        UserDetailsImpl userDetails = UserDetailsImpl.build(donatur);
+
+        // Buat Authentication object
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        // Simpan Authentication di SecurityContext
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Hasilkan JWT token
         return jwtUtils.generateJwtToken(authentication);
     }
+
+
 
     @Override
     public ResponseMessage resetPassword(ResetPasswordRequest resetPasswordRequest) {

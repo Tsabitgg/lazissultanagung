@@ -2,10 +2,12 @@ package com.lazis.lazissultanagung.service;
 
 import com.lazis.lazissultanagung.dto.request.TransactionRequest;
 import com.lazis.lazissultanagung.dto.response.TransactionResponse;
+import com.lazis.lazissultanagung.dto.response.DonaturTransactionsHistoryResponse;
 import com.lazis.lazissultanagung.exception.BadRequestException;
-import com.lazis.lazissultanagung.model.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface TransactionService {
 
@@ -22,4 +24,6 @@ public interface TransactionService {
     Page<TransactionResponse> getTransactionsByDSKLId(Long dsklId, Pageable pageable);
 
     Page<TransactionResponse> getTransactionsByWakafId(Long wakafId, Pageable pageable);
+
+    List<DonaturTransactionsHistoryResponse> getDonaturTransactionsHistory() throws BadRequestException;
 }

@@ -3,6 +3,7 @@ package com.lazis.lazissultanagung.service;
 import com.lazis.lazissultanagung.dto.request.TransactionRequest;
 import com.lazis.lazissultanagung.dto.response.CampaignResponse;
 import com.lazis.lazissultanagung.dto.response.TransactionResponse;
+import com.lazis.lazissultanagung.dto.response.DonaturTransactionsHistoryResponse;
 import com.lazis.lazissultanagung.exception.BadRequestException;
 import com.lazis.lazissultanagung.model.*;
 import com.lazis.lazissultanagung.repository.*;
@@ -10,9 +11,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TransactionServiceImpl implements TransactionService{
@@ -174,6 +179,55 @@ public class TransactionServiceImpl implements TransactionService{
         Page<Transaction> transactions = transactionRepository.findByWakafId(wakafId, pageable);
 
         return transactions.map(transaction -> new TransactionResponse(transaction, getCategoryData(transaction)));
+    }
+
+    @Override
+    public List<DonaturTransactionsHistoryResponse> getDonaturTransactionsHistory() throws BadRequestException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+            // Ambil nomor telepon dari user yang login
+            String phoneNumber = userDetails.getUsername();
+
+            // Cari transaksi berdasarkan nomor telepon
+            List<Transaction> donaturTransactions = transactionRepository.findByPhoneNumber(phoneNumber);
+
+            // Konversi transaksi ke DTO
+            List<DonaturTransactionsHistoryResponse> donaturTransactionsHistory = new ArrayList<>();
+            for (Transaction transaction : donaturTransactions) {
+                DonaturTransactionsHistoryResponse transactionDTO = new DonaturTransactionsHistoryResponse();
+                transactionDTO.setUsername(transaction.getUsername());
+                transactionDTO.setTransactionAmount(transaction.getTransactionAmount());
+                transactionDTO.setMessage(transaction.getMessage());
+                transactionDTO.setTransactionDate(transaction.getTransactionDate());
+                transactionDTO.setSuccess(transaction.isSuccess());
+
+                // Tentukan tipe transaksi dan nama transaksinya
+                Object categoryData = getCategoryData(transaction);
+                if (categoryData != null) {
+                    if (categoryData instanceof Campaign) {
+                        transactionDTO.setCategory("Campaign");
+                        transactionDTO.setTransactionName(((Campaign) categoryData).getCampaignName());
+                    } else if (categoryData instanceof Zakat) {
+                        transactionDTO.setCategory("Zakat");
+                        transactionDTO.setTransactionName(((Zakat) categoryData).getCategoryName());
+                    } else if (categoryData instanceof Infak) {
+                        transactionDTO.setCategory("Infak");
+                        transactionDTO.setTransactionName(((Infak) categoryData).getCategoryName());
+                    } else if (categoryData instanceof Wakaf) {
+                        transactionDTO.setCategory("Wakaf");
+                        transactionDTO.setTransactionName(((Wakaf) categoryData).getCategoryName());
+                    }
+                }
+
+                donaturTransactionsHistory.add(transactionDTO);
+            }
+
+            return donaturTransactionsHistory;
+        }
+
+        throw new BadRequestException("Donatur tidak ditemukan");
     }
 
     private Object getCategoryData(Transaction transaction) {
