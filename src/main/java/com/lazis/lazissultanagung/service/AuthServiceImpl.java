@@ -174,7 +174,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Ambil data dari Google OAuth2 token
         String email = userInfo.path("email").asText(null);
-        String username = userInfo.path("email").asText(null);
+        String username = userInfo.path("name").asText(null);
         String picture = userInfo.path("picture").asText(null);
 
         if (email == null) {
