@@ -188,7 +188,7 @@ public class TransactionServiceImpl implements TransactionService{
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
             // Ambil nomor telepon dari user yang login
-            String phoneNumber = userDetails.getUsername();
+            String phoneNumber = userDetails.getPhoneNumber();
 
             // Cari transaksi berdasarkan nomor telepon
             List<Transaction> donaturTransactions = transactionRepository.findByPhoneNumber(phoneNumber);

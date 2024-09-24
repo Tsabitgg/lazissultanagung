@@ -15,22 +15,17 @@ import com.lazis.lazissultanagung.repository.DonaturRepository;
 import com.lazis.lazissultanagung.security.jwt.JwtUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 @Service
@@ -56,31 +51,46 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtResponse authenticateUser(SignInRequest signinRequest, HttpServletResponse response, String userType) throws BadRequestException {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signinRequest.getEmailOrPhoneNumber(), signinRequest.getPassword()));
+        try {
+            // Mencoba untuk melakukan autentikasi
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(signinRequest.getEmailOrPhoneNumber(), signinRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            // Set authentication context
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        if (userType.equals("ADMIN")) {
-            boolean isAdmin = userDetails.getAuthorities().stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN") ||
-                            grantedAuthority.getAuthority().equals("SUB_ADMIN"));
+            // Cek tipe pengguna (ADMIN atau DONATUR)
+            if (userType.equals("ADMIN")) {
+                boolean isAdmin = userDetails.getAuthorities().stream()
+                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN") ||
+                                grantedAuthority.getAuthority().equals("SUB_ADMIN"));
 
-            if (!isAdmin) {
-                throw new BadRequestException("Akses ditolak!!!, anda tidak signin sebagai admin");
+                if (!isAdmin) {
+                    throw new BadRequestException("Akses ditolak!!!, anda tidak signin sebagai admin");
+                }
+            } else if (userType.equals("DONATUR")) {
+                boolean isDonatur = userDetails.getAuthorities().isEmpty();
+
+                if (!isDonatur) {
+                    throw new BadRequestException("Akses ditolak!!!, anda tidak signin sebagai donatur");
+                }
             }
-        } else if (userType.equals("DONATUR")) {
-            boolean isDonatur = userDetails.getAuthorities().isEmpty();
 
-            if (!isDonatur) {
-                throw new BadRequestException("Akses ditolak!!!, anda tidak signin sebagai donatur");
-            }
+            // Jika berhasil, generate JWT token
+            String jwt = jwtUtils.generateJwtToken(authentication);
+            String username = userDetails.getUsername();
+            return new JwtResponse(username, jwt);
+
+        } catch (UsernameNotFoundException e) {
+            // Jika email/no hp tidak ditemukan
+            throw new BadRequestException("Email atau nomor handphone belum terdaftar");
+        } catch (BadCredentialsException e) {
+            // Jika password salah
+            throw new BadRequestException("Password anda salah");
         }
-
-        String jwt = jwtUtils.generateJwtToken(authentication);
-        return new JwtResponse(jwt);
     }
+
 
 
     @Override
@@ -163,7 +173,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String authenticateGoogleUser(String accessToken) throws Exception {
+    public JwtResponse authenticateGoogleUser(String accessToken) throws Exception {
         String url = "https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + accessToken;
         RestTemplate restTemplate = new RestTemplate();
         JsonNode userInfo = restTemplate.getForObject(url, JsonNode.class);
@@ -189,16 +199,6 @@ public class AuthServiceImpl implements AuthService {
                     newDonatur.setEmail(email);
                     newDonatur.setImage(picture);
                     newDonatur.setCreatedAt(new Date());
-
-                    // Generate nomor VA unik
-                    Random random = new Random();
-                    long min = 1000000000L;
-                    long max = 9999999999L;
-
-                    for (int i = 0; i < 10; i++) {
-                        long vaNumber = min + (long) (random.nextDouble() * (max - min));
-                        newDonatur.setVaNumber(vaNumber);
-                    }
                     return donaturRepository.save(newDonatur);
                 });
 
@@ -212,8 +212,12 @@ public class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Hasilkan JWT token
-        return jwtUtils.generateJwtToken(authentication);
+        String jwt = jwtUtils.generateJwtToken(authentication);
+
+        // Kembalikan JWT token dan username
+        return new JwtResponse(username, jwt);
     }
+
 
 
 

@@ -32,20 +32,31 @@ public class DonaturServiceImpl implements DonaturService {
     @Override
     public Donatur getCurrentDonatur() throws BadRequestException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            return donaturRepository.findByPhoneNumber(userDetails.getUsername())
-                    .orElseThrow(() -> new BadRequestException("Donatur tidak ditemukan"));
+
+            // Jika nomor telepon tidak tersedia (kosong), gunakan email untuk pencarian
+            if (userDetails.getPhoneNumber() == null || userDetails.getPhoneNumber().isEmpty()) {
+                return donaturRepository.findByEmail(userDetails.getEmail())
+                        .orElseThrow(() -> new BadRequestException("Donatur tidak ditemukan berdasarkan email"));
+            } else {
+                // Jika nomor telepon ada, lakukan pencarian berdasarkan nomor telepon
+                return donaturRepository.findByPhoneNumber(userDetails.getPhoneNumber())
+                        .orElseThrow(() -> new BadRequestException("Donatur tidak ditemukan berdasarkan nomor telepon"));
+            }
         }
+
         throw new BadRequestException("Donatur tidak ditemukan");
     }
+
 
     @Override
     public Donatur editProfileDonatur(EditProfileDonaturRequest editProfileRequest) throws BadRequestException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            Donatur existingDonatur = donaturRepository.findByPhoneNumber(userDetails.getUsername())
+            Donatur existingDonatur = donaturRepository.findByPhoneNumber(userDetails.getPhoneNumber())
                     .orElseThrow(() -> new BadRequestException("Donatur"));
 
             if (editProfileRequest.getUsername() != null) {

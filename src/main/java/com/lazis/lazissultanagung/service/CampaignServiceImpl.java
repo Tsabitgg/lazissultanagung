@@ -50,7 +50,7 @@ public class CampaignServiceImpl implements CampaignService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getUsername())
+            Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
                     .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
             if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
@@ -135,7 +135,7 @@ public class CampaignServiceImpl implements CampaignService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getUsername())
+            Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
                     .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
             if (!existingAdmin.getRole().equals(ERole.ADMIN)) {

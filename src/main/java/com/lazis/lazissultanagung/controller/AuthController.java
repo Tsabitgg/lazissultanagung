@@ -12,6 +12,7 @@ import com.lazis.lazissultanagung.service.AuthService;
 
 import com.lazis.lazissultanagung.service.DonaturService;
 import com.lazis.lazissultanagung.service.EmailSenderService;
+import com.lazis.lazissultanagung.service.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -70,15 +71,16 @@ public class AuthController {
             String accessToken = tokenRequest.getAccess_token();
 
             // Lakukan autentikasi dengan Google OAuth2
-            String jwtToken = authService.authenticateGoogleUser(accessToken);
+            JwtResponse authResponse = authService.authenticateGoogleUser(accessToken);
 
-            // Kembalikan JWT token jika autentikasi sukses
-            return ResponseEntity.ok(new JwtResponse(jwtToken));
+            // Kembalikan JWT token dan username jika autentikasi sukses
+            return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
             // Jika gagal, kembalikan pesan error dengan status UNAUTHORIZED
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new JwtResponse("Unauthorized: " + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new JwtResponse("Unauthorized", null));
         }
     }
+
 
     @PostMapping("/reset-password")
     public ResponseEntity<ResponseMessage> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {

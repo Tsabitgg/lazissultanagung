@@ -19,7 +19,7 @@ public interface AuthService {
 
     Donatur registerDonatur(SignUpRequest signUpRequest) throws BadRequestException;
 
-    String authenticateGoogleUser(String accessToken) throws Exception;
+    JwtResponse authenticateGoogleUser(String accessToken) throws Exception;
 
     ResponseMessage resetPassword(ResetPasswordRequest resetPasswordRequest);
 }
