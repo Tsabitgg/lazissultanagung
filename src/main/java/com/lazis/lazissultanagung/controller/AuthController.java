@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @CrossOrigin(origins= {"*"}, maxAge = 4800, allowCredentials = "false" )
 @RestController
@@ -58,6 +59,19 @@ public class AuthController {
 //        emailSenderService.sendRegisterReport(toEmail, subject, body);
 
         return ResponseEntity.ok(donatur);
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<?> authenticateWithGoogle(@RequestBody Map<String, String> request) {
+        String accessToken = request.get("access_token");
+
+        try {
+            // Memanggil service untuk autentikasi Google dan menghasilkan JWT
+            String jwtToken = authService.authenticateGoogleUser(accessToken);
+            return ResponseEntity.ok(Map.of("jwt_token", jwtToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Google token invalid: " + e.getMessage());
+        }
     }
 
     @PostMapping("/reset-password")

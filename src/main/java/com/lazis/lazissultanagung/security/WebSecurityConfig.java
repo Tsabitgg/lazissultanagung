@@ -63,11 +63,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                 .authorizeHttpRequests(auth ->
                         auth.anyRequest().permitAll()
                 )
-                .oauth2Login(oauth2Login ->
-                        oauth2Login
-                                .userInfoEndpoint()
-                                .oidcUserService(oidcUserService())
-                );
+        ;
 
         http.authenticationProvider(authenticationProvider());
 
@@ -76,8 +72,4 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
         return http.build();
     }
 
-    @Bean
-    public OidcUserService oidcUserService() {
-        return new OidcUserService();
-    }
 }

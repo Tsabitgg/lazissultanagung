@@ -1,5 +1,6 @@
 package com.lazis.lazissultanagung.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.lazis.lazissultanagung.dto.request.ResetPasswordRequest;
 import com.lazis.lazissultanagung.dto.response.JwtResponse;
 import com.lazis.lazissultanagung.dto.request.SignInRequest;
@@ -20,7 +21,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 @Service
@@ -150,6 +154,42 @@ public class AuthServiceImpl implements AuthService {
         donaturRepository.save(donatur);
 
         return donatur;
+    }
+
+    @Override
+    public String authenticateGoogleUser(String accessToken) throws Exception {
+        // Verifikasi access token dengan Google
+        String url = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + accessToken;
+        RestTemplate restTemplate = new RestTemplate();
+        JsonNode userInfo = restTemplate.getForObject(url, JsonNode.class);
+
+        if (userInfo == null || userInfo.has("error")) {
+            throw new Exception("Invalid Google Access Token");
+        }
+
+        String email = userInfo.get("email").asText();
+        String username = userInfo.get("name").asText();
+        String picture = userInfo.get("picture").asText();
+
+        // Cari atau buat user baru
+        Donatur donatur = donaturRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    Donatur newDonatur = new Donatur();
+                    newDonatur.setUsername(username);
+                    newDonatur.setEmail(email);
+                    newDonatur.setImage(picture);
+                    newDonatur.setCreatedAt(new Date());
+                    return donaturRepository.save(newDonatur);
+                });
+
+        // Autentikasi manual
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(donatur.getEmail(), null, new ArrayList<>())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Hasilkan JWT token
+        return jwtUtils.generateJwtToken(authentication);
     }
 
     @Override
