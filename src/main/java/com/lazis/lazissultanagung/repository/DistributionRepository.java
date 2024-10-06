@@ -17,4 +17,11 @@ public interface DistributionRepository extends JpaRepository<Distribution, Long
             @Param("month") Integer month,
             @Param("year") Integer year,
             Pageable pageable);
+
+    @Query("SELECT SUM(d.distributionAmount) AS Total_distribusi FROM Distribution d")
+    Double totalDistributionAmount();
+
+
+    @Query("SELECT COUNT(DISTINCT d.receiver) AS penerima_manfaat FROM Distribution d")
+    long totalDistributionReceiver();
 }

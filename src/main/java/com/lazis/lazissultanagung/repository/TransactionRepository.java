@@ -46,4 +46,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByPhoneNumber(String phoneNumber);
 
+    @Query("SELECT SUM(t.transactionAmount) " +
+            "FROM Transaction t")
+    Double totalTransactionAmount();
+
+    @Query("SELECT COUNT(DISTINCT t.phoneNumber) FROM Transaction t")
+    long getTotalDonatur();
+
 }

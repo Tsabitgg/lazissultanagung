@@ -1,14 +1,12 @@
 package com.lazis.lazissultanagung.service;
 
 import com.lazis.lazissultanagung.dto.response.AmilCampaignResponse;
-import com.lazis.lazissultanagung.dto.response.AmilZiswafResponse;
+import com.lazis.lazissultanagung.dto.response.SummaryResponse;
 import com.lazis.lazissultanagung.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 @Service
 public class SummaryServiceImpl implements SummaryService {
@@ -34,22 +32,15 @@ public class SummaryServiceImpl implements SummaryService {
     @Autowired
     private WakafRepository wakafRepository;
 
-//    @Override
-//    public SummaryResponse getSummary(Integer year) {
-//        SummaryResponse summary = new SummaryResponse();
-//        if (year != null) {
-//            summary.setTotalDistributionAmount(distributionRepository.totalDistributionAmountByYear(year));
-//            summary.setTotalDistributionReceiver(distributionRepository.totalDistributionReceiverByYear(year));
-//            summary.setTotalTransactionAmount(transactionRepository.getTotalTransactionAmountByYear(year));
-//            summary.setTotalUser(donaturRepository.getTotalUserByYear(year));
-//        } else {
-//            summary.setTotalDistributionAmount(distributionRepository.totalDistributionAmount());
-//            summary.setTotalDistributionReceiver(distributionRepository.totalDistributionReceiver());
-//            summary.setTotalTransactionAmount(transactionRepository.totalTransactionAmount());
-//            summary.setTotalUser(transactionRepository.getTotalDonatur());
-//        }
-//        return summary;
-//    }
+    @Override
+    public SummaryResponse getSummary() {
+        SummaryResponse summary = new SummaryResponse();
+            summary.setTotalDistributionAmount(distributionRepository.totalDistributionAmount());
+            summary.setTotalDistributionReceiver(distributionRepository.totalDistributionReceiver());
+            summary.setTotalTransactionAmount(transactionRepository.totalTransactionAmount());
+            summary.setTotalDonatur(transactionRepository.getTotalDonatur());
+        return summary;
+    }
 
     @Override
     public Page<AmilCampaignResponse> getAmilCampaign(Pageable pageable) {

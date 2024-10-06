@@ -7,5 +7,5 @@ public class SummaryResponse {
     private Double totalDistributionAmount;
     private long totalDistributionReceiver;
     private Double totalTransactionAmount;
-    private long totalUser;
+    private long totalDonatur;
 }

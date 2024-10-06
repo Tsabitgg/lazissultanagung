@@ -1,6 +1,7 @@
 package com.lazis.lazissultanagung.controller;
 
 import com.lazis.lazissultanagung.dto.response.AmilCampaignResponse;
+import com.lazis.lazissultanagung.dto.response.SummaryResponse;
 import com.lazis.lazissultanagung.service.SummaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,11 +22,11 @@ public class SummaryController {
     @Autowired
     private SummaryService summaryService;
 
-//    @GetMapping("/summary")
-//    public ResponseEntity<SummaryResponse> getSummary(@RequestParam(name = "year", required = false) Integer year) {
-//        SummaryResponse summary = summaryService.getSummary(year);
-//        return ResponseEntity.ok().body(summary);
-//    }
+    @GetMapping("/summary")
+    public ResponseEntity<SummaryResponse> getSummary() {
+        SummaryResponse summary = summaryService.getSummary();
+        return ResponseEntity.ok().body(summary);
+    }
 
     @GetMapping("/amil-campaign")
     public Page<AmilCampaignResponse> getAmilCampaign(@RequestParam(name = "page", defaultValue = "0") int page){
