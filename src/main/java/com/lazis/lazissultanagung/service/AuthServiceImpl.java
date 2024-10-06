@@ -51,50 +51,46 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtResponse authenticateUser(SignInRequest signinRequest, HttpServletResponse response, String userType) throws BadRequestException {
-        // Mencoba untuk menemukan pengguna berdasarkan email atau nomor HP
-        Donatur donatur = donaturRepository.findByEmail(signinRequest.getEmailOrPhoneNumber())
-                .or(() -> donaturRepository.findByPhoneNumber(signinRequest.getEmailOrPhoneNumber()))
-                .orElseThrow(() -> new BadRequestException("Email atau nomor handphone belum terdaftar"));
+        Authentication authentication;
 
-        // Setelah memastikan pengguna ada, kita coba autentikasi
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(signinRequest.getEmailOrPhoneNumber(), signinRequest.getPassword()));
+        if (userType.equals("ADMIN")) {
+            // Mencari user dari adminRepository
+            Admin admin = adminRepository.findByEmail(signinRequest.getEmailOrPhoneNumber())
+                    .or(() -> adminRepository.findByPhoneNumber(signinRequest.getEmailOrPhoneNumber()))
+                    .orElseThrow(() -> new BadRequestException("Email atau nomor handphone belum terdaftar sebagai admin"));
 
-            // Set authentication context
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-            // Cek tipe pengguna (ADMIN atau DONATUR)
-            if (userType.equals("ADMIN")) {
-                boolean isAdmin = userDetails.getAuthorities().stream()
-                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN") ||
-                                grantedAuthority.getAuthority().equals("SUB_ADMIN"));
-
-                if (!isAdmin) {
-                    throw new BadRequestException("Akses ditolak!!!, anda tidak signin sebagai admin");
-                }
-            } else if (userType.equals("DONATUR")) {
-                boolean isDonatur = userDetails.getAuthorities().isEmpty();
-
-                if (!isDonatur) {
-                    throw new BadRequestException("Akses ditolak!!!, anda tidak signin sebagai donatur");
-                }
+            try {
+                authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(signinRequest.getEmailOrPhoneNumber(), signinRequest.getPassword()));
+            } catch (BadCredentialsException e) {
+                throw new BadRequestException("Password anda salah");
             }
 
-            // Jika berhasil, generate JWT token
-            String jwt = jwtUtils.generateJwtToken(authentication);
-            String username = userDetails.getUsername();
-            return new JwtResponse(username, jwt);
+        } else if (userType.equals("DONATUR")) {
+            // Mencari user dari donaturRepository
+            Donatur donatur = donaturRepository.findByEmail(signinRequest.getEmailOrPhoneNumber())
+                    .or(() -> donaturRepository.findByPhoneNumber(signinRequest.getEmailOrPhoneNumber()))
+                    .orElseThrow(() -> new BadRequestException("Email atau nomor handphone belum terdaftar sebagai donatur"));
 
-        } catch (BadCredentialsException e) {
-            // Jika password salah
-            throw new BadRequestException("Password anda salah");
+            try {
+                authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(signinRequest.getEmailOrPhoneNumber(), signinRequest.getPassword()));
+            } catch (BadCredentialsException e) {
+                throw new BadRequestException("Password anda salah");
+            }
+        } else {
+            throw new BadRequestException("Tipe pengguna tidak valid");
         }
+
+        // Set authentication context
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        // Generate JWT token
+        String jwt = jwtUtils.generateJwtToken(authentication);
+        String username = userDetails.getUsername();
+        return new JwtResponse(username, jwt);
     }
-
-
-
 
     @Override
     public Admin registerAdmin(SignUpRequest signUpRequest) throws BadRequestException {
