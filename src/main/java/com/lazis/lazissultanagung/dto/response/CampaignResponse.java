@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Data
 public class CampaignResponse{
     private Long campaignId;
+    private int displayId;
     private String campaignCode;
     private String campaignName;
     private String campaignCategory;

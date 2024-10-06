@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -215,9 +216,12 @@ public class CampaignServiceImpl implements CampaignService {
             }
         });
 
+        AtomicInteger counter = new AtomicInteger(1);
+
         // Menerapkan mapping dari Campaign ke CampaignResponse
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setDisplayId(counter.getAndIncrement());
             response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
             response.setCreator(campaign.getAdmin().getUsername());
             return response;
@@ -227,8 +231,11 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getCampaignsByCategoryName(String campaignCategory, Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findByCategoryName(campaignCategory, pageable);
+        AtomicInteger counter = new AtomicInteger(1);
+
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setDisplayId(counter.getAndIncrement());
             response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
             response.setCreator(campaign.getAdmin().getUsername());
             return response;
@@ -238,8 +245,10 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getCampaignByName(String campaignName, Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findByCampaignName(campaignName, pageable);
+        AtomicInteger counter = new AtomicInteger(1);
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setDisplayId(counter.getAndIncrement());
             response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
             response.setCreator(campaign.getAdmin().getUsername());
             return response;
@@ -249,8 +258,10 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getCampaignByEmergency(Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findCampaignByEmergency(pageable);
+        AtomicInteger counter = new AtomicInteger(1);
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setDisplayId(counter.getAndIncrement());
             response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
             response.setCreator(campaign.getAdmin().getUsername());
             return response;
@@ -260,8 +271,10 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getPendingCampaign(Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findPendingCampaign(pageable);
+        AtomicInteger counter = new AtomicInteger(1);
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setDisplayId(counter.getAndIncrement());
             response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
             response.setCreator(campaign.getAdmin().getUsername());
             return response;
@@ -271,8 +284,10 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getHistoryCampaign(Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findHistoryCampaign(pageable);
+        AtomicInteger counter = new AtomicInteger(1);
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+            response.setDisplayId(counter.getAndIncrement());
             response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
             response.setCreator(campaign.getAdmin().getUsername());
             return response;
