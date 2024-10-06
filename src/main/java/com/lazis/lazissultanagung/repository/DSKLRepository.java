@@ -14,4 +14,9 @@ public interface DSKLRepository extends JpaRepository<DSKL, Long> {
     @Modifying
     @Query("UPDATE DSKL d SET d.amount = d.amount + :transactionAmount WHERE d.id = :id")
     void updateDSKLCurrentAmount(@Param("id") Long id, @Param("transactionAmount") double transactionAmount);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE DSKL d SET d.distribution = d.distribution + :distributionAmount WHERE d.id = :id")
+    void updateDSKLDistribution(@Param("id") Long id, @Param("distributionAmount") double distributionAmount);
 }

@@ -70,7 +70,7 @@ public class CampaignServiceImpl implements CampaignService {
             campaign.setDescription(campaignRequest.getDescription());
             campaign.setLocation(campaignRequest.getLocation());
             campaign.setTargetAmount(campaignRequest.getTargetAmount());
-            campaign.setCurrentAmount(campaignRequest.getCurrentAmount());
+            campaign.setCurrentAmount(0.0);
             campaign.setStartDate(campaignRequest.getStartDate());
             campaign.setEndDate(campaignRequest.getEndDate());
             campaign.setActive(true);
@@ -88,6 +88,57 @@ public class CampaignServiceImpl implements CampaignService {
             CampaignResponse campaignResponse = modelMapper.map(savedCampaign, CampaignResponse.class);
 
             campaignResponse.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
+            campaignResponse.setCreator(existingAdmin.getUsername());
+
+            return campaignResponse;
+        }
+        throw new BadRequestException("Admin tidak ditemukan");
+    }
+
+    @Override
+    public CampaignResponse editCampaign(Long id, CampaignRequest campaignRequest) {
+        // Mencari campaign berdasarkan ID
+        Campaign existingCampaign = campaignRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Campaign tidak ditemukan"));
+
+        // Mencari kategori campaign
+        CampaignCategory campaignCategory = campaignCategoryRepository.findById(campaignRequest.getCategoryId())
+                .orElseThrow(() -> new BadRequestException("Kategori Tidak ditemukan"));
+
+        // Mendapatkan informasi admin yang sedang login
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
+                    .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
+
+            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
+                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa mengedit campaign");
+            }
+
+            // Mengunggah gambar campaign jika ada
+            String imageUrl = existingCampaign.getCampaignImage(); // gambar lama
+            if (campaignRequest.getCampaignImage() != null && !campaignRequest.getCampaignImage().isEmpty()) {
+                imageUrl = cloudinaryService.upload(campaignRequest.getCampaignImage());
+            }
+
+            // Mengupdate field campaign yang diperbolehkan
+            existingCampaign.setCampaignCategory(campaignCategory);
+            existingCampaign.setCampaignName(campaignRequest.getCampaignName());
+            existingCampaign.setCampaignCode(campaignRequest.getCampaignCode());
+            existingCampaign.setCampaignImage(imageUrl);
+            existingCampaign.setDescription(campaignRequest.getDescription());
+            existingCampaign.setLocation(campaignRequest.getLocation());
+            existingCampaign.setTargetAmount(campaignRequest.getTargetAmount());
+            existingCampaign.setCurrentAmount(campaignRequest.getCurrentAmount());
+            existingCampaign.setEmergency(campaignRequest.isEmergency());
+
+            // Simpan campaign yang sudah diubah
+            Campaign updatedCampaign = campaignRepository.save(existingCampaign);
+
+            // Map ke response
+            CampaignResponse campaignResponse = modelMapper.map(updatedCampaign, CampaignResponse.class);
+            campaignResponse.setCampaignCategory(updatedCampaign.getCampaignCategory().getCampaignCategory());
             campaignResponse.setCreator(existingAdmin.getUsername());
 
             return campaignResponse;

@@ -15,4 +15,9 @@ public interface ZakatRepository extends JpaRepository<Zakat, Long> {
     @Modifying
     @Query("UPDATE Zakat z SET z.amount = z.amount + :transactionAmount WHERE z.id = :id")
     void updateZakatCurrentAmount(@Param("id") Long id, @Param("transactionAmount") double transactionAmount);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Zakat z SET z.distribution = z.distribution + :distributionAmount WHERE z.id = :id")
+    void updateZakatDistribution(@Param("id") Long id, @Param("distributionAmount") double distributionAmount);
 }

@@ -43,6 +43,15 @@ public class CampaignController {
         }
     }
 
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<CampaignResponse> editCampaign(
+            @PathVariable("id") Long id,
+            @ModelAttribute CampaignRequest campaignRequest) {
+
+        CampaignResponse updatedCampaign = campaignService.editCampaign(id, campaignRequest);
+        return ResponseEntity.ok(updatedCampaign);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<CampaignResponse> getCampaignById(@PathVariable Long id){
         Optional<CampaignResponse> campaignOptional = campaignService.getCampaignById(id);

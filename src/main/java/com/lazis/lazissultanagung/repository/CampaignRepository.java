@@ -51,20 +51,20 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
 //    @Query("SELECT c FROM Campaign c WHERE YEAR(c.startDate) = :year")
 //    Page<Campaign> findByYear(@Param("year") int year, Pageable pageable);
 //
-//    @Query("SELECT \n" +
-//            " c.campaignId,\n" +
-//            " c.campaignName,\n" +
-//            " c.location,\n" +
-//            " c.targetAmount,\n" +
-//            " c.currentAmount,\n" +
-//            " c.currentAmount * 0.15 AS amil,\n" +
-//            " c.active\n" +
-//            "FROM \n" +
-//            " Campaign c\n" +
-//            "GROUP BY c.campaignId, c.currentAmount \n" +
-//            "ORDER BY c.campaignId DESC"
-//    )
-//    Page<Object []> getAmilCampaign(Pageable pageable);
+    @Query("SELECT \n" +
+            " c.campaignId,\n" +
+            " c.campaignName,\n" +
+            " c.location,\n" +
+            " c.targetAmount,\n" +
+            " c.currentAmount,\n" +
+            " c.currentAmount * 0.125 AS amil,\n" +
+            " c.active\n" +
+            "FROM \n" +
+            " Campaign c\n" +
+            "GROUP BY c.campaignId, c.currentAmount \n" +
+            "ORDER BY c.campaignId DESC"
+    )
+    Page<Object []> getAmilCampaign(Pageable pageable);
 //
 //    @Query("SELECT SUM(c.currentAmount) AS totalCampaignTransactionAmount, " +
 //            "SUM(c.currentAmount * 0.15) AS totalAmil, " +
@@ -81,4 +81,11 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
     @Modifying
     @Query("UPDATE Campaign c SET c.currentAmount = c.currentAmount + :transactionAmount WHERE c.campaignId = :campaignId")
     void updateCampaignCurrentAmount(@Param("campaignId") Long campaignId, @Param("transactionAmount") double transactionAmount);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Campaign c SET c.distribution = c.distribution + :distributionAmount WHERE c.campaignId = :campaignId")
+    void updateCampaignDistribution(@Param("campaignId") Long campaignId, @Param("distributionAmount") double distributionAmount);
+
+
 }

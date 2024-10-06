@@ -15,4 +15,9 @@ public interface WakafRepository extends JpaRepository<Wakaf, Long> {
     @Query("UPDATE Wakaf w SET w.amount = w.amount + :transactionAmount WHERE w.id = :id")
     void updateWakafCurrentAmount(@Param("id") Long id, @Param("transactionAmount") double transactionAmount);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE Wakaf w SET w.distribution = w.distribution + :distributionAmount WHERE w.id = :id")
+    void updateWakafDistribution(@Param("id") Long id, @Param("distributionAmount") double distributionAmount);
+
 }

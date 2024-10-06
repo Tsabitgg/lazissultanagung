@@ -15,4 +15,9 @@ public interface InfakRepository extends JpaRepository<Infak, Long> {
     @Query("UPDATE Infak i SET i.amount = i.amount + :transactionAmount WHERE i.id = :id")
     void updateInfakCurrentAmount(@Param("id") Long id, @Param("transactionAmount") double transactionAmount);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE Infak i SET i.distribution = i.distribution + :distributionAmount WHERE i.id = :id")
+    void updateInfakDistribution(@Param("id") Long id, @Param("distributionAmount") double distributionAmount);
+
 }

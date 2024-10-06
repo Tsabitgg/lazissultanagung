@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface CampaignService {
     CampaignResponse createCampaign(CampaignRequest campaignRequest);
 
+    CampaignResponse editCampaign(Long id, CampaignRequest campaignRequest);
+
     List<CampaignResponse> getAllCampaign();
 
 

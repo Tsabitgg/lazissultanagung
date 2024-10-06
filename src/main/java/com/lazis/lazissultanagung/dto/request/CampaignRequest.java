@@ -18,7 +18,6 @@ public class CampaignRequest {
     private String description;
     private String location;
     private double targetAmount;
-    private double currentAmount;
     @Column(nullable = false, updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
