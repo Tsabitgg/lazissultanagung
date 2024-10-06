@@ -130,7 +130,6 @@ public class CampaignServiceImpl implements CampaignService {
             existingCampaign.setDescription(campaignRequest.getDescription());
             existingCampaign.setLocation(campaignRequest.getLocation());
             existingCampaign.setTargetAmount(campaignRequest.getTargetAmount());
-            existingCampaign.setCurrentAmount(campaignRequest.getCurrentAmount());
             existingCampaign.setEmergency(campaignRequest.isEmergency());
 
             // Simpan campaign yang sudah diubah
