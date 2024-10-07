@@ -181,6 +181,15 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
+    public ResponseMessage closeCampaign(Long id) {
+        Campaign closedCampaign = campaignRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Campaign tidak ditemukan"));
+        closedCampaign.setActive(false);
+        campaignRepository.save(closedCampaign);
+        return new ResponseMessage(true, "Campaign Berhasil Ditutup");
+    }
+
+    @Override
     @Transactional
     public ResponseMessage approveCampaign(Long id) throws BadRequestException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

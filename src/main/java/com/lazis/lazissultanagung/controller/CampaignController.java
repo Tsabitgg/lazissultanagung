@@ -67,6 +67,11 @@ public class CampaignController {
         return campaignService.deleteCampaign(id);
     }
 
+    @PutMapping("/close/{id}")
+    public ResponseMessage closeCampaign(@PathVariable Long id){
+        return campaignService.closeCampaign(id);
+    }
+
     @GetMapping("/get-active-and-approved-campaign")
     public Page<CampaignResponse> getCampaignByActiveAndApproved(@RequestParam(name = "page", defaultValue = "0") int page){
         int pageSize = 12;

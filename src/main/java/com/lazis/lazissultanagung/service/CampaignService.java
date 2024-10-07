@@ -24,6 +24,8 @@ public interface CampaignService {
 
     ResponseMessage deleteCampaign(Long id);
 
+    ResponseMessage closeCampaign(Long id);
+
     @Transactional
     ResponseMessage approveCampaign(Long id) throws BadRequestException;
 
