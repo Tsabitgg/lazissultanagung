@@ -216,7 +216,13 @@ public class CampaignServiceImpl implements CampaignService {
             }
         });
 
-        AtomicInteger counter = new AtomicInteger(1);
+        // Hitung offset berdasarkan halaman saat ini dan ukuran halaman
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int offset = pageNumber * pageSize;
+
+        // Membuat counter yang mulai dari offset + 1
+        AtomicInteger counter = new AtomicInteger(offset + 1);
 
         // Menerapkan mapping dari Campaign ke CampaignResponse
         return campaigns.map(campaign -> {
@@ -231,7 +237,13 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getCampaignsByCategoryName(String campaignCategory, Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findByCategoryName(campaignCategory, pageable);
-        AtomicInteger counter = new AtomicInteger(1);
+        // Hitung offset berdasarkan halaman saat ini dan ukuran halaman
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int offset = pageNumber * pageSize;
+
+        // Membuat counter yang mulai dari offset + 1
+        AtomicInteger counter = new AtomicInteger(offset + 1);
 
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
@@ -245,7 +257,14 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getCampaignByName(String campaignName, Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findByCampaignName(campaignName, pageable);
-        AtomicInteger counter = new AtomicInteger(1);
+
+        // Hitung offset berdasarkan halaman saat ini dan ukuran halaman
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int offset = pageNumber * pageSize;
+
+        // Membuat counter yang mulai dari offset + 1
+        AtomicInteger counter = new AtomicInteger(offset + 1);
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
             response.setDisplayId(counter.getAndIncrement());
@@ -258,7 +277,14 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getCampaignByEmergency(Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findCampaignByEmergency(pageable);
-        AtomicInteger counter = new AtomicInteger(1);
+
+        // Hitung offset berdasarkan halaman saat ini dan ukuran halaman
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int offset = pageNumber * pageSize;
+
+        // Membuat counter yang mulai dari offset + 1
+        AtomicInteger counter = new AtomicInteger(offset + 1);
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
             response.setDisplayId(counter.getAndIncrement());
@@ -271,7 +297,14 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getPendingCampaign(Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findPendingCampaign(pageable);
-        AtomicInteger counter = new AtomicInteger(1);
+
+        // Hitung offset berdasarkan halaman saat ini dan ukuran halaman
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int offset = pageNumber * pageSize;
+
+        // Membuat counter yang mulai dari offset + 1
+        AtomicInteger counter = new AtomicInteger(offset + 1);
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
             response.setDisplayId(counter.getAndIncrement());
@@ -284,7 +317,14 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Page<CampaignResponse> getHistoryCampaign(Pageable pageable) {
         Page<Campaign> campaigns = campaignRepository.findHistoryCampaign(pageable);
-        AtomicInteger counter = new AtomicInteger(1);
+
+        // Hitung offset berdasarkan halaman saat ini dan ukuran halaman
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int offset = pageNumber * pageSize;
+
+        // Membuat counter yang mulai dari offset + 1
+        AtomicInteger counter = new AtomicInteger(offset + 1);
         return campaigns.map(campaign -> {
             CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
             response.setDisplayId(counter.getAndIncrement());
