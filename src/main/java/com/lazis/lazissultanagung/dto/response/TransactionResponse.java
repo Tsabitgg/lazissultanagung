@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class TransactionResponse {
     private Long id;
+    private Long displayid;
     private String username;
     private String phoneNumber;
     private String email;
