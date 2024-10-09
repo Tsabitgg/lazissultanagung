@@ -5,6 +5,8 @@ import com.lazis.lazissultanagung.model.Donatur;
 import com.lazis.lazissultanagung.service.DonaturService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,5 +29,12 @@ public class DonaturController {
     public ResponseEntity<?> editUserProfile(@ModelAttribute EditProfileDonaturRequest editProfileRequest) {
         Donatur updateDonatur = donaturService.editProfileDonatur(editProfileRequest);
         return ResponseEntity.ok(updateDonatur);
+    }
+
+    @GetMapping()
+    public Page<Donatur> getAllDonatur(@RequestParam(name = "page", defaultValue = "0") int page){
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return donaturService.getAllDonatur(pageRequest);
     }
 }
