@@ -1,12 +1,16 @@
 package com.lazis.lazissultanagung.service;
 
 import com.lazis.lazissultanagung.dto.response.AmilCampaignResponse;
+import com.lazis.lazissultanagung.dto.response.AmilZiswafResponse;
 import com.lazis.lazissultanagung.dto.response.SummaryResponse;
 import com.lazis.lazissultanagung.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class SummaryServiceImpl implements SummaryService {
@@ -32,6 +36,9 @@ public class SummaryServiceImpl implements SummaryService {
     @Autowired
     private WakafRepository wakafRepository;
 
+    @Autowired
+    private DSKLRepository dsklRepository;
+
     @Override
     public SummaryResponse getSummary() {
         SummaryResponse summary = new SummaryResponse();
@@ -43,54 +50,79 @@ public class SummaryServiceImpl implements SummaryService {
     }
 
     @Override
-    public Page<AmilCampaignResponse> getAmilCampaign(Pageable pageable) {
-        Page<Object[]> results = campaignRepository.getAmilCampaign(pageable);
-        return results.map(result -> new AmilCampaignResponse(
-                (Long) result[0],
-                (String) result[1],
-                (String) result[2],
-                (Double) result[3],
-                (Double) result[4],
-                (Double) result[5],
-                (Boolean) result[6]
-        ));
-    }
+    public Page<Object> getAmilByCategory(String category, Pageable pageable) {
+        List<Object> response = new ArrayList<>();
+        Page<Object> resultPage;
 
-//    @Override
-//    public Page<AmilZiswafResponse> getAmilZakat(Pageable pageable) {
-//        Page<Object[]> results = zakatRepository.getAmilZakat(pageable);
-//        return results.map(result -> new AmilZiswafResponse(
-//                (Long) result[0],
-//                (ZakatCategory) result[1],
-//                (String) result[2],
-//                (Double) result[3],
-//                (Double) result[4]
-//        ));
-//    }
-//
-//    @Override
-//    public Page<AmilZiswafResponse> getAmilInfak(Pageable pageable) {
-//        Page<Object[]> results = infakRepository.getAmilInfak(pageable);
-//        return results.map(result -> new AmilZiswafResponse(
-//                (Long) result[0],
-//                (InfakCategory) result[1],
-//                (String) result[2],
-//                (Double) result[3],
-//                (Double) result[4]
-//        ));
-//    }
-//
-//    @Override
-//    public Page<AmilZiswafResponse> getAmilWakaf(Pageable pageable) {
-//        Page<Object[]> results = wakafRepository.getAmilWakaf(pageable);
-//        return results.map(result -> new AmilZiswafResponse(
-//                (Long) result[0],
-//                (WakafCategory) result[1],
-//                (String) result[2],
-//                (Double) result[3],
-//                (Double) result[4]
-//        ));
-//    }
+        switch (category.toLowerCase()) {
+            case "zakat":
+                resultPage = zakatRepository.findAll(pageable).map(zakat ->
+                        new AmilZiswafResponse(
+                                zakat.getId(),
+                                "zakat",
+                                zakat.getCategoryName(),
+                                zakat.getAmount(),
+                                zakat.getAmount() * 0.125
+                        )
+                );
+                break;
+
+            case "infak":
+                resultPage = infakRepository.findAll(pageable).map(infak ->
+                        new AmilZiswafResponse(
+                                infak.getId(),
+                                "infak",
+                                infak.getCategoryName(),
+                                infak.getAmount(),
+                                infak.getAmount() * 0.125
+                        )
+                );
+                break;
+
+            case "wakaf":
+                resultPage = wakafRepository.findAll(pageable).map(wakaf ->
+                        new AmilZiswafResponse(
+                                wakaf.getId(),
+                                "wakaf",
+                                wakaf.getCategoryName(),
+                                wakaf.getAmount(),
+                                wakaf.getAmount() * 0.10
+                        )
+                );
+                break;
+
+            case "dskl":
+                resultPage = dsklRepository.findAll(pageable).map(dskl ->
+                        new AmilZiswafResponse(
+                                dskl.getId(),
+                                "dskl",
+                                dskl.getCategoryName(),
+                                dskl.getAmount(),
+                                dskl.getAmount() * 0.125
+                        )
+                );
+                break;
+
+            case "campaign":
+                resultPage = campaignRepository.findAll(pageable).map(campaign ->
+                        new AmilCampaignResponse(
+                                campaign.getCampaignId(),
+                                campaign.getCampaignName(),
+                                campaign.getLocation(),
+                                campaign.getTargetAmount(),
+                                campaign.getCurrentAmount(),
+                                campaign.getCurrentAmount() * 0.125,
+                                campaign.isActive()
+                        )
+                );
+                break;
+
+            default:
+                throw new IllegalArgumentException("Invalid category: " + category);
+        }
+
+        return resultPage;
+    }
 //
 //    @Override
 //    public Optional<SummaryCampaignResponse> getSummaryCampaign() {

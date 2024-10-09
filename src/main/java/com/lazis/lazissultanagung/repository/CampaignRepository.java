@@ -20,6 +20,8 @@ import java.util.Optional;
 @Repository
 public interface CampaignRepository extends JpaRepository<Campaign, Long> {
 
+    Page<Campaign> findAll(Pageable pageable);
+
     @Query("SELECT c FROM Campaign c WHERE c.campaignCategory.campaignCategory = :campaignCategory " +
             "AND c.active = true " +
             "AND c.approved = true ORDER BY c.campaignId DESC")

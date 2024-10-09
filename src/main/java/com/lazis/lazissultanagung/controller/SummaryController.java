@@ -6,6 +6,7 @@ import com.lazis.lazissultanagung.service.SummaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,34 +29,18 @@ public class SummaryController {
         return ResponseEntity.ok().body(summary);
     }
 
-    @GetMapping("/amil-campaign")
-    public Page<AmilCampaignResponse> getAmilCampaign(@RequestParam(name = "page", defaultValue = "0") int page){
+    @GetMapping("/amil/{category}")
+    public ResponseEntity<Page<Object>> getAmilByCategory(
+            @PathVariable String category,
+            @RequestParam(defaultValue = "0") int page
+    ) {
         int pageSize = 12;
-        PageRequest pageRequest = PageRequest.of(page, pageSize);
-        return summaryService.getAmilCampaign(pageRequest);
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Object> response = summaryService.getAmilByCategory(category, pageable);
+        return ResponseEntity.ok(response);
     }
 
-//    @GetMapping("/amil-zakat")
-//    public Page<AmilZakatResponse> getAmilZakat(@RequestParam(name = "page", defaultValue = "0") int page){
-//        int pageSize = 6;
-//        PageRequest pageRequest = PageRequest.of(page, pageSize);
-//        return summaryService.getAmilZakat(pageRequest);
-//    }
 
-//    @GetMapping("/amil-infak")
-//    public Page<AmilInfakResponse> getAmilInfak(@RequestParam(name = "page", defaultValue = "0") int page){
-//        int pageSize = 6;
-//        PageRequest pageRequest = PageRequest.of(page, pageSize);
-//        return summaryService.getAmilInfak(pageRequest);
-//    }
-
-//    @GetMapping("/amil-wakaf")
-//    public Page<AmilWakafResponse> getAmilWakaf(@RequestParam(name = "page", defaultValue = "0") int page){
-//        int pageSize = 6;
-//        PageRequest pageRequest = PageRequest.of(page, pageSize);
-//        return summaryService.getAmilWakaf(pageRequest);
-//    }
-//
 //    @GetMapping("summary-campaign")
 //    public ResponseEntity<SummaryCampaignResponse> getSummaryCampaign() {
 //        Optional<SummaryCampaignResponse> summary = summaryService.getSummaryCampaign();

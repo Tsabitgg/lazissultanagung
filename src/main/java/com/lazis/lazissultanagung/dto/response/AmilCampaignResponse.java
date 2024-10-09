@@ -1,12 +1,9 @@
 package com.lazis.lazissultanagung.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class AmilCampaignResponse {
     private long campaignId;
     private String campaignName;
@@ -15,4 +12,15 @@ public class AmilCampaignResponse {
     private double currentAmount;
     private double amil;
     private boolean active;
+
+    public AmilCampaignResponse(long campaignId, String campaignName, String location, double targetAmount, double currentAmount, double amil, boolean active) {
+        this.campaignId = campaignId;
+        this.campaignName = campaignName;
+        this.location = location;
+        this.targetAmount = targetAmount;
+        this.currentAmount = currentAmount;
+        this.amil = amil;
+        this.active = active;
+    }
+
 }

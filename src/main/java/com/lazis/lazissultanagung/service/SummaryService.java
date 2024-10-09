@@ -8,5 +8,5 @@ import org.springframework.data.domain.Pageable;
 public interface SummaryService {
     SummaryResponse getSummary();
 
-    Page<AmilCampaignResponse> getAmilCampaign(Pageable pageable);
+    Page<Object> getAmilByCategory(String category, Pageable pageable);
 }
