@@ -1,6 +1,7 @@
 package com.lazis.lazissultanagung.repository;
 
 import com.lazis.lazissultanagung.dto.response.CampaignResponse;
+import com.lazis.lazissultanagung.model.Admin;
 import com.lazis.lazissultanagung.model.Campaign;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,16 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
             "AND c.approved = true ORDER BY c.campaignId DESC")
     Page<Campaign> findByCategoryName(@Param("campaignCategory") String campaignCategory, Pageable pageable);
 
+    Page<Campaign> findByAdmin(Admin admin, Pageable pageable);
+
+    @Query("SELECT c FROM Campaign c WHERE c.active = true AND c.approved = true AND c.admin = :admin ORDER BY c.campaignId DESC")
+    Page<Campaign> findActiveApproveCampaignOperator(Admin admin, Pageable pageable);
+
+    @Query("SELECT c FROM Campaign c WHERE c.active = true AND c.approved = false AND c.admin = :admin ORDER BY c.campaignId DESC")
+    Page<Campaign> findPendingCampaignOperator(Admin admin, Pageable pageable);
+
+    @Query("SELECT c FROM Campaign c WHERE c.active = false AND c.approved = true AND c.admin = :admin ORDER BY c.campaignId DESC")
+    Page<Campaign> findHistoryCampaignOperator(Admin admin, Pageable pageable);
 
 //    List<Campaign> findByApproved(boolean approved);
 //    List<Campaign> findCampaignByActive(boolean isActive);

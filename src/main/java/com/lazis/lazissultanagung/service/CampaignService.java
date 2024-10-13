@@ -40,4 +40,12 @@ public interface CampaignService {
     Page<CampaignResponse> getPendingCampaign(Pageable pageable);
 
     Page<CampaignResponse> getHistoryCampaign(Pageable pageable);
+
+    Page<CampaignResponse> getCampaignsByOperator(Pageable pageable);
+
+    Page<CampaignResponse> getActiveApproveCampaignsByOperator(Pageable pageable);
+
+    Page<CampaignResponse> getPendingCampaignsByOperator(Pageable pageable);
+
+    Page<CampaignResponse> getHistoryCampaignsByOperator(Pageable pageable);
 }

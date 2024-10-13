@@ -9,6 +9,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -120,5 +121,33 @@ public class CampaignController {
         int pageSize = 12;
         PageRequest pageRequest = PageRequest.of(page, pageSize);
         return campaignService.getHistoryCampaign(pageRequest);
+    }
+
+    @GetMapping("/get-by-operator")
+    public Page<CampaignResponse> getCampaignsByOperator(@RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return campaignService.getCampaignsByOperator(pageRequest);
+    }
+
+    @GetMapping("/get-by-operator/active-approve")
+    public Page<CampaignResponse> getActiveApproveCampaignsByOperator(@RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return campaignService.getActiveApproveCampaignsByOperator(pageRequest);
+    }
+
+    @GetMapping("/get-by-operator/pending")
+    public Page<CampaignResponse> getPendingCampaignsByOperator(@RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return campaignService.getPendingCampaignsByOperator(pageRequest);
+    }
+
+    @GetMapping("/get-by-operator/history")
+    public Page<CampaignResponse> getHistoryCampaignsByOperator(@RequestParam(name = "page", defaultValue = "0") int page) {
+        int pageSize = 12;
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        return campaignService.getHistoryCampaignsByOperator(pageRequest);
     }
 }

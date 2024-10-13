@@ -54,8 +54,8 @@ public class CampaignServiceImpl implements CampaignService {
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
                     .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
-            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat campaign");
+            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.OPERATOR)) {
+                throw new BadRequestException("Hanya Admin dan Operator yang bisa membuat campaign");
             }
 
             String imageUrl = null;
@@ -79,7 +79,7 @@ public class CampaignServiceImpl implements CampaignService {
             campaign.setDistribution(0.0);
             if (existingAdmin.getRole().equals(ERole.ADMIN)) {
                 campaign.setApproved(true);
-            } else if (existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
+            } else if (existingAdmin.getRole().equals(ERole.OPERATOR)) {
                 campaign.setApproved(false);
             }
             campaign.setEmergency(campaignRequest.isEmergency());
@@ -113,8 +113,8 @@ public class CampaignServiceImpl implements CampaignService {
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
                     .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
-            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa mengedit campaign");
+            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.OPERATOR)) {
+                throw new BadRequestException("Hanya Admin dan Operator yang bisa mengedit campaign");
             }
 
             // Mengunggah gambar campaign jika ada
@@ -341,5 +341,113 @@ public class CampaignServiceImpl implements CampaignService {
             response.setCreator(campaign.getAdmin().getUsername());
             return response;
         });
+    }
+
+    @Override
+    public Page<CampaignResponse> getCampaignsByOperator(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Admin operator = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
+                    .orElseThrow(() -> new BadRequestException("Operator tidak ditemukan"));
+
+            Page<Campaign> campaigns = campaignRepository.findByAdmin(operator, pageable);
+
+            // Calculate offset and create counter
+            int offset = pageable.getPageNumber() * pageable.getPageSize();
+            AtomicInteger counter = new AtomicInteger(offset + 1);
+
+            return campaigns.map(campaign -> {
+                CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+                response.setDisplayId(counter.getAndIncrement());
+                response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
+                response.setCreator(campaign.getAdmin().getUsername());
+                return response;
+            });
+        } else {
+            throw new BadRequestException("Operator tidak terautentikasi");
+        }
+    }
+
+    @Override
+    public Page<CampaignResponse> getActiveApproveCampaignsByOperator(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Admin operator = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
+                    .orElseThrow(() -> new BadRequestException("Operator tidak ditemukan"));
+
+            Page<Campaign> campaigns = campaignRepository.findActiveApproveCampaignOperator(operator, pageable);
+
+            // Calculate offset and create counter
+            int offset = pageable.getPageNumber() * pageable.getPageSize();
+            AtomicInteger counter = new AtomicInteger(offset + 1);
+
+            return campaigns.map(campaign -> {
+                CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+                response.setDisplayId(counter.getAndIncrement());
+                response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
+                response.setCreator(campaign.getAdmin().getUsername());
+                return response;
+            });
+        } else {
+            throw new BadRequestException("Operator tidak terautentikasi");
+        }
+    }
+
+    @Override
+    public Page<CampaignResponse> getPendingCampaignsByOperator(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Admin operator = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
+                    .orElseThrow(() -> new BadRequestException("Operator tidak ditemukan"));
+
+            Page<Campaign> campaigns = campaignRepository.findPendingCampaignOperator(operator, pageable);
+
+            // Calculate offset and create counter
+            int offset = pageable.getPageNumber() * pageable.getPageSize();
+            AtomicInteger counter = new AtomicInteger(offset + 1);
+
+            return campaigns.map(campaign -> {
+                CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+                response.setDisplayId(counter.getAndIncrement());
+                response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
+                response.setCreator(campaign.getAdmin().getUsername());
+                return response;
+            });
+        } else {
+            throw new BadRequestException("Operator tidak terautentikasi");
+        }
+    }
+
+    @Override
+    public Page<CampaignResponse> getHistoryCampaignsByOperator(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Admin operator = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
+                    .orElseThrow(() -> new BadRequestException("Operator tidak ditemukan"));
+
+            Page<Campaign> campaigns = campaignRepository.findHistoryCampaignOperator(operator, pageable);
+
+            // Calculate offset and create counter
+            int offset = pageable.getPageNumber() * pageable.getPageSize();
+            AtomicInteger counter = new AtomicInteger(offset + 1);
+
+            return campaigns.map(campaign -> {
+                CampaignResponse response = modelMapper.map(campaign, CampaignResponse.class);
+                response.setDisplayId(counter.getAndIncrement());
+                response.setCampaignCategory(campaign.getCampaignCategory().getCampaignCategory());
+                response.setCreator(campaign.getAdmin().getUsername());
+                return response;
+            });
+        } else {
+            throw new BadRequestException("Operator tidak terautentikasi");
+        }
     }
 }
