@@ -71,8 +71,8 @@ public class NewsServiceImpl implements NewsService {
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
                     .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
-            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat Berita");
+            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.OPERATOR)) {
+                throw new BadRequestException("Hanya Admin dan Operator yang bisa membuat Berita");
             }
 
             String imageUrl = null;
@@ -90,7 +90,7 @@ public class NewsServiceImpl implements NewsService {
             news.setAdmin(existingAdmin);
             if (existingAdmin.getRole().equals(ERole.ADMIN)) {
                 news.setApproved(true);
-            } else if (existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
+            } else if (existingAdmin.getRole().equals(ERole.OPERATOR)) {
                 news.setApproved(false);
             }
 
@@ -113,8 +113,8 @@ public class NewsServiceImpl implements NewsService {
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
                     .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
-            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa mengedit berita");
+            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.OPERATOR)) {
+                throw new BadRequestException("Hanya Admin dan Operator yang bisa mengedit berita");
             }
 
             News updateNews = newsRepository.findById(id)
@@ -139,7 +139,7 @@ public class NewsServiceImpl implements NewsService {
             // Tentukan status persetujuan berdasarkan peran admin
             if (existingAdmin.getRole().equals(ERole.ADMIN)) {
                 updateNews.setApproved(true);
-            } else if (existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
+            } else if (existingAdmin.getRole().equals(ERole.OPERATOR)) {
                 updateNews.setApproved(false);
             }
 

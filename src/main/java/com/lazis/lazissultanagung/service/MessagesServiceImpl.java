@@ -27,4 +27,14 @@ public class MessagesServiceImpl implements MessagesService{
 
         messagesRepository.save(message);
     }
+
+    @Override
+    public void deincrementAamiin(Long id) {
+        Messages message = messagesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Message not found with id: " + id));
+
+        message.setAamiin(message.getAamiin() - 1);
+
+        messagesRepository.save(message);
+    }
 }

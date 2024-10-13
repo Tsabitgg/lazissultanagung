@@ -37,8 +37,8 @@ public class InfakServiceImpl implements InfakService{
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
                     .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
-            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat Infak");
+            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.OPERATOR)) {
+                throw new BadRequestException("Hanya Admin dan Operator yang bisa membuat Infak");
             }
 
             return infakRepository.save(infak);

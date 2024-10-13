@@ -115,8 +115,8 @@ public class AuthServiceImpl implements AuthService {
         if (signUpRequest.getRole() != null) {
             if (signUpRequest.getRole().equalsIgnoreCase("admin")) {
                 admin.setRole(ERole.ADMIN);
-            } else if (signUpRequest.getRole().equalsIgnoreCase("sub admin")) {
-                admin.setRole(ERole.SUB_ADMIN);
+            } else if (signUpRequest.getRole().equalsIgnoreCase("operator")) {
+                admin.setRole(ERole.OPERATOR);
             }
         }
 

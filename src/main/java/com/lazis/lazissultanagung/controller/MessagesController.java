@@ -30,4 +30,10 @@ public class MessagesController {
         messagesService.incrementAamiin(id);
         return ResponseEntity.ok("Terimakasih Sudah mengAamiinkan doa ini");
     }
+
+    @PostMapping("/{id}/batal-aamiin")
+    public ResponseEntity<String> deincrementAamiin(@PathVariable("id") Long id) {
+        messagesService.deincrementAamiin(id);
+        return ResponseEntity.ok("Aamiin dibatalkan");
+    }
 }

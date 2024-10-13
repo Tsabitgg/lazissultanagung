@@ -8,4 +8,6 @@ public interface MessagesService {
     Page<Messages> getAllCampaignMessages(Pageable pageable);
 
     void incrementAamiin(Long id);
+
+    void deincrementAamiin(Long id);
 }

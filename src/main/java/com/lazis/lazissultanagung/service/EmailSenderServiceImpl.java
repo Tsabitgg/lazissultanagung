@@ -17,7 +17,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         message.setTo(toEmail);
         message.setSubject(subject);
         message.setText(body);
-        message.setFrom("lazissultanagung01@gmail.com"); // sesuaikan dengan email kamu
+        message.setFrom("lazissultanagung01@gmail.com");
 
         mailSender.send(message);
     }

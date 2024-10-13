@@ -37,8 +37,8 @@ public class DSKLServiceImpl implements DSKLService{
             Admin existingAdmin = adminRepository.findByPhoneNumber(userDetails.getPhoneNumber())
                     .orElseThrow(() -> new BadRequestException("Admin tidak ditemukan"));
 
-            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.SUB_ADMIN)) {
-                throw new BadRequestException("Hanya Admin dan Sub Admin yang bisa membuat DSKL");
+            if (!existingAdmin.getRole().equals(ERole.ADMIN) && !existingAdmin.getRole().equals(ERole.OPERATOR)) {
+                throw new BadRequestException("Hanya Admin dan Operator yang bisa membuat DSKL");
             }
 
             return dsklRepository.save(dskl);
