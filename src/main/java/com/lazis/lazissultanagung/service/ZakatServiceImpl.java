@@ -41,6 +41,8 @@ public class ZakatServiceImpl implements ZakatService {
                 throw new BadRequestException("Hanya Admin dan Operator yang bisa membuat zakat");
             }
 
+            zakat.setEmergency(false);
+
             return zakatRepository.save(zakat);
         }
         throw new BadRequestException("Admin tidak ditemukan");
@@ -54,7 +56,6 @@ public class ZakatServiceImpl implements ZakatService {
         updateZakat.setCategoryName(zakat.getCategoryName());
         updateZakat.setAmount(zakat.getAmount());
         updateZakat.setDistribution(zakat.getDistribution());
-        updateZakat.setCoa(zakat.getCoa());
         updateZakat.setEmergency(zakat.isEmergency());
 
         return zakatRepository.save(updateZakat);

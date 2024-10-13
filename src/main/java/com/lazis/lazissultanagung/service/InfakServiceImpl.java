@@ -41,6 +41,8 @@ public class InfakServiceImpl implements InfakService{
                 throw new BadRequestException("Hanya Admin dan Operator yang bisa membuat Infak");
             }
 
+            infak.setEmergency(false);
+
             return infakRepository.save(infak);
         }
         throw new BadRequestException("Admin tidak ditemukan");
@@ -54,7 +56,6 @@ public class InfakServiceImpl implements InfakService{
         updateInfak.setCategoryName(infak.getCategoryName());
         updateInfak.setAmount(infak.getAmount());
         updateInfak.setDistribution(infak.getDistribution());
-        updateInfak.setCoa(infak.getCoa());
         updateInfak.setEmergency(infak.isEmergency());
 
         return infakRepository.save(updateInfak);

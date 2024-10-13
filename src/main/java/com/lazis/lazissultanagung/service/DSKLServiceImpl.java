@@ -41,6 +41,8 @@ public class DSKLServiceImpl implements DSKLService{
                 throw new BadRequestException("Hanya Admin dan Operator yang bisa membuat DSKL");
             }
 
+            dskl.setEmergency(false);
+
             return dsklRepository.save(dskl);
         }
         throw new BadRequestException("Admin tidak ditemukan");
@@ -55,7 +57,6 @@ public class DSKLServiceImpl implements DSKLService{
         updateDSKL.setCategoryName(dskl.getCategoryName());
         updateDSKL.setAmount(dskl.getAmount());
         updateDSKL.setDistribution(dskl.getDistribution());
-        updateDSKL.setCoa(dskl.getCoa());
         updateDSKL.setEmergency(dskl.isEmergency());
 
         return dsklRepository.save(updateDSKL);

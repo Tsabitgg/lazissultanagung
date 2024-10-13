@@ -59,9 +59,5 @@ public class Campaign {
 
     @Column(columnDefinition = "BOOLEAN")
     private boolean emergency;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "coa_id", referencedColumnName = "id")
-    private Coa coa;
 }
 

@@ -41,6 +41,8 @@ public class WakafServiceImpl implements WakafService {
                 throw new BadRequestException("Hanya Admin dan Operator yang bisa membuat wakaf");
             }
 
+            wakaf.setEmergency(false);
+
             return wakafRepository.save(wakaf);
         }
         throw new BadRequestException("Admin tidak ditemukan");
@@ -54,7 +56,6 @@ public class WakafServiceImpl implements WakafService {
         updateWakaf.setCategoryName(wakaf.getCategoryName());
         updateWakaf.setAmount(wakaf.getAmount());
         updateWakaf.setDistribution(wakaf.getDistribution());
-        updateWakaf.setCoa(wakaf.getCoa());
         updateWakaf.setEmergency(wakaf.isEmergency());
 
         return wakafRepository.save(updateWakaf);
