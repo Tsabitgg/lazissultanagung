@@ -109,20 +109,20 @@ public class TransactionServiceImpl implements TransactionService{
             case "infak":
                 debitCoa = coaRepository.findById(8L)
                         .orElseThrow(() -> new RuntimeException("COA for debit campaign/infak not found"));
-                kreditCoa = coaRepository.findById(9L)
+                kreditCoa = coaRepository.findById(73L)
                         .orElseThrow(() -> new RuntimeException("COA for kredit campaign/infak not found"));
                 break;
             case "zakat":
-                debitCoa = coaRepository.findById(1L)
+                debitCoa = coaRepository.findById(7L)
                         .orElseThrow(() -> new RuntimeException("COA for debit zakat not found"));
-                kreditCoa = coaRepository.findById(2L)
+                kreditCoa = coaRepository.findById(54L)
                         .orElseThrow(() -> new RuntimeException("COA for kredit zakat not found"));
                 break;
             case "dskl":
             case "wakaf":
-                debitCoa = coaRepository.findById(3L)
+                debitCoa = coaRepository.findById(9L)
                         .orElseThrow(() -> new RuntimeException("COA for debit dskl/wakaf not found"));
-                kreditCoa = coaRepository.findById(4L)
+                kreditCoa = coaRepository.findById(99L)
                         .orElseThrow(() -> new RuntimeException("COA for kredit dskl/wakaf not found"));
                 break;
             default:
