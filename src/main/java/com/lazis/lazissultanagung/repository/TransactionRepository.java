@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -52,5 +54,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT COUNT(DISTINCT t.phoneNumber) FROM Transaction t")
     long getTotalDonatur();
+
+    @Query("SELECT MAX(t.transactionId) FROM Transaction t")
+    Integer findLastTransactionNumber();
+
+    List<Transaction> findAllByTransactionDateBetween(LocalDate startDate, LocalDate endDate);
 
 }

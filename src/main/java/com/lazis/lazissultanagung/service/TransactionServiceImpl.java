@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,9 @@ public class TransactionServiceImpl implements TransactionService{
     private MessagesRepository messagesRepository;
 
     @Autowired
+    private CoaRepository coaRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Override
@@ -64,70 +68,143 @@ public class TransactionServiceImpl implements TransactionService{
             throw new BadRequestException("Username atau nomor handphone tidak boleh kosong");
         }
 
-        Transaction transaction = new Transaction();
-        transaction.setUsername(transactionRequest.getUsername());
-        transaction.setPhoneNumber(transactionRequest.getPhoneNumber());
-        transaction.setEmail(transactionRequest.getEmail());
-        transaction.setTransactionAmount(transactionRequest.getTransactionAmount());
-        transaction.setMessage(transactionRequest.getMessage());
+        // Dapatkan nomor transaksi terakhir
+        Integer lastTransactionNumber = transactionRepository.findLastTransactionNumber();  // Buat repository method untuk ini
+        int newTransactionNumber = (lastTransactionNumber == null ? 1 : lastTransactionNumber + 1);  // Auto increment
+
+        // Format nomor bukti
+        String transactionNumberFormatted = String.format("%03d", newTransactionNumber);  // Format angka menjadi 001, 002, dst.
+        String staticPart = "LAZ";
+        String datePart = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/yyyy"));  // Format MM/yyyy untuk bulan dan tahun
+        String nomorBukti = transactionNumberFormatted + "/" + staticPart + "/" + datePart;
+
+        // Transaksi Debit
+        Transaction transactionDebit = new Transaction();
+        transactionDebit.setUsername(transactionRequest.getUsername());
+        transactionDebit.setPhoneNumber(transactionRequest.getPhoneNumber());
+        transactionDebit.setEmail(transactionRequest.getEmail());
+        transactionDebit.setTransactionAmount(transactionRequest.getTransactionAmount());
+        transactionDebit.setMessage(transactionRequest.getMessage());
+        transactionDebit.setDebit(transactionRequest.getTransactionAmount());
+        transactionDebit.setKredit(0.0);  // Kredit untuk transaksi debit diatur ke 0
+        transactionDebit.setNomorBukti(nomorBukti);
+
+        // Transaksi Kredit
+        Transaction transactionKredit = new Transaction();
+        transactionKredit.setUsername(transactionRequest.getUsername());
+        transactionKredit.setPhoneNumber(transactionRequest.getPhoneNumber());
+        transactionKredit.setEmail(transactionRequest.getEmail());
+        transactionKredit.setTransactionAmount(transactionRequest.getTransactionAmount());
+        transactionKredit.setMessage(transactionRequest.getMessage());
+        transactionKredit.setKredit(transactionRequest.getTransactionAmount());
+        transactionKredit.setDebit(0.0);  // Debit untuk transaksi kredit diatur ke 0
+        transactionKredit.setNomorBukti(nomorBukti);
+
+        // Set COA berdasarkan jenis transaksi dan tipe debit/kredit
+        Coa debitCoa;
+        Coa kreditCoa;
+
+        switch (categoryType) {
+            case "campaign":
+            case "infak":
+                debitCoa = coaRepository.findById(8L)
+                        .orElseThrow(() -> new RuntimeException("COA for debit campaign/infak not found"));
+                kreditCoa = coaRepository.findById(9L)
+                        .orElseThrow(() -> new RuntimeException("COA for kredit campaign/infak not found"));
+                break;
+            case "zakat":
+                debitCoa = coaRepository.findById(1L)
+                        .orElseThrow(() -> new RuntimeException("COA for debit zakat not found"));
+                kreditCoa = coaRepository.findById(2L)
+                        .orElseThrow(() -> new RuntimeException("COA for kredit zakat not found"));
+                break;
+            case "dskl":
+            case "wakaf":
+                debitCoa = coaRepository.findById(3L)
+                        .orElseThrow(() -> new RuntimeException("COA for debit dskl/wakaf not found"));
+                kreditCoa = coaRepository.findById(4L)
+                        .orElseThrow(() -> new RuntimeException("COA for kredit dskl/wakaf not found"));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid category type: " + categoryType);
+        }
+
+        // Set COA pada transaksi debit dan kredit
+        transactionDebit.setCoa(debitCoa);
+        transactionKredit.setCoa(kreditCoa);
 
         Object responseDto = null;
         switch (categoryType) {
             case "campaign":
                 Campaign campaign = campaignRepository.findById(id)
                         .orElseThrow(() -> new BadRequestException("Campaign tidak ditemukan"));
-                transaction.setCampaign(campaign);
+                transactionDebit.setCampaign(campaign);
+                transactionKredit.setCampaign(campaign);
                 responseDto = modelMapper.map(campaign, CampaignResponse.class);
                 break;
             case "zakat":
                 Zakat zakat = zakatRepository.findById(id)
                         .orElseThrow(() -> new BadRequestException("Zakat tidak ditemukan"));
-                transaction.setZakat(zakat);
+                transactionDebit.setZakat(zakat);
+                transactionKredit.setZakat(zakat);
                 responseDto = modelMapper.map(zakat, Zakat.class);
                 break;
             case "infak":
                 Infak infak = infakRepository.findById(id)
                         .orElseThrow(() -> new BadRequestException("Infak tidak ditemukan"));
-                transaction.setInfak(infak);
+                transactionDebit.setInfak(infak);
+                transactionKredit.setInfak(infak);
                 responseDto = modelMapper.map(infak, Infak.class);
                 break;
             case "dskl":
                 DSKL dskl = dsklRepository.findById(id)
                         .orElseThrow(() -> new BadRequestException("DSKL tidak ditemukan"));
-                transaction.setDskl(dskl);
+                transactionDebit.setDskl(dskl);
+                transactionKredit.setDskl(dskl);
                 responseDto = modelMapper.map(dskl, DSKL.class);
                 break;
             case "wakaf":
                 Wakaf wakaf = wakafRepository.findById(id)
                         .orElseThrow(() -> new BadRequestException("Wakaf tidak ditemukan"));
-                transaction.setWakaf(wakaf);
+                transactionDebit.setWakaf(wakaf);
+                transactionKredit.setWakaf(wakaf);
                 responseDto = modelMapper.map(wakaf, Wakaf.class);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid category type: " + categoryType);
         }
 
-        transaction.setTransactionDate(LocalDateTime.now());
-        transaction.setCategory(categoryType);
-        transaction.setMethod("OFFLINE");
-        transaction.setChannel("OFFLINE");
-        transaction.setVaNumber("9876547894321567");
-        transaction.setSuccess(true);
+        // Set common properties
+        transactionDebit.setTransactionDate(LocalDateTime.now());
+        transactionDebit.setCategory(categoryType);
+        transactionDebit.setMethod("OFFLINE");
+        transactionDebit.setChannel("OFFLINE");
+        transactionDebit.setVaNumber("9876547894321567");
+        transactionDebit.setSuccess(true);
 
-        transaction = transactionRepository.save(transaction);
+        transactionKredit.setTransactionDate(LocalDateTime.now());
+        transactionKredit.setCategory(categoryType);
+        transactionKredit.setMethod("OFFLINE");
+        transactionKredit.setChannel("OFFLINE");
+        transactionKredit.setVaNumber("9876547894321567");
+        transactionKredit.setSuccess(true);
 
+        // Simpan kedua transaksi ke database
+        transactionRepository.save(transactionDebit);
+        transactionRepository.save(transactionKredit);
+
+        // Update current amount untuk campaign, zakat, infak, dskl, atau wakaf
         switch (categoryType) {
             case "campaign":
                 campaignRepository.updateCampaignCurrentAmount(id, transactionRequest.getTransactionAmount());
 
                 Messages messages = new Messages();
-                messages.setUsername(transaction.getUsername());
-                messages.setMessagesDate(transaction.getTransactionDate());
-                messages.setMessages(transaction.getMessage());
-                messages.setCampaign(transaction.getCampaign());
-                messages.setAamiin(messages.getAamiin() +1);
+                messages.setUsername(transactionDebit.getUsername());
+                messages.setMessagesDate(transactionDebit.getTransactionDate());
+                messages.setMessages(transactionDebit.getMessage());
+                messages.setCampaign(transactionDebit.getCampaign());
+                messages.setAamiin(messages.getAamiin() + 1);
                 messagesRepository.save(messages);
-
                 break;
             case "zakat":
                 zakatRepository.updateZakatCurrentAmount(id, transactionRequest.getTransactionAmount());
@@ -143,8 +220,9 @@ public class TransactionServiceImpl implements TransactionService{
                 break;
         }
 
-        return new TransactionResponse(transaction, responseDto);
+        return new TransactionResponse(transactionDebit, responseDto);  // Response menggunakan transaksi debit
     }
+
 
     @Override
     public Page<TransactionResponse> getTransactionsByCampaignId(Long campaignId, Pageable pageable) {
